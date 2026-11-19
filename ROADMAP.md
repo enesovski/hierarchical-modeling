@@ -43,7 +43,7 @@ Each branch owns its files. Both will touch `src/main.js` (a few wiring lines ea
 
 | | Branch `rendering` (Phases 3 + 6) | Branch `interaction` (Phases 4 + 5) |
 |---|---|---|
-| Owns | `shaders.js`, `renderer.js`, `insect.js` shape definitions, new `textures.js`, `obj-loader.js`, `ui/render-panel.js`, `assets/textures/`, `assets/models/` | new `animation.js`, `picking.js`, `ui/animation-panel.js`, `assets/animations/` |
+| Owns | `shaders.js`, `renderer.js`, `insect.js` shape definitions, new `textures.js`, `obj-loader.js`, `ui/render-panel.js`, `assets/textures/`, `assets/models/` | new `animation.js`, `picking.js`, `drag-pose.js`, `ui/animation-panel.js`, `ui/selection-panel.js`, `assets/animations/` |
 | Hooks already in the baseline | `renderer.render(scene)`; shapes are `{ mesh, matrix, color }` | `drawHierarchy(root, view, drawShape)` for the picking pass; `state.selectedNode` (the renderer already highlights it); `node.dofs`; `attachOrbitControls(..., { shouldStart })` so a click on a part skips the camera |
 
 Shared contract, which neither branch changes alone: the `DOFS` keys and `pose` format in `insect.js` (saved animations depend on them) and the `createMesh` format.
@@ -59,10 +59,10 @@ Shared contract, which neither branch changes alone: the `DOFS` keys and `pose` 
 - [ ] Save the animation as a JSON download and load it with `<input type="file">`.
 - [ ] Two preset animations kept as JSON in `assets/animations/` (for example walk and jump/fly), each loadable with one button.
 
-## Phase 5: Direct manipulation by picking (→ 15 pts)
-- [ ] Off-screen framebuffer pass with its own small shader that draws each part in a unique ID color through `drawHierarchy`; on click, `gl.readPixels` at the cursor to find the part.
-- [ ] Set `state.selectedNode` to highlight the selected part. Dragging changes that joint's angle(s) (`node.dofs` lists its pose keys) and writes back into `pose`, so the sliders stay in sync.
-- [ ] Clicking empty space falls through to camera control.
+## Phase 5: Direct manipulation by picking (→ 15 pts) ✅
+- [x] `src/picking.js`: off-screen framebuffer (colour + depth renderbuffers) with its own small shader that draws each part in a unique ID color through `drawHierarchy`; on click, `gl.readPixels` at the cursor finds the part. The ground is drawn as id 0 so it still occludes.
+- [x] `src/drag-pose.js`: clicking sets `state.selectedNode`, which `src/outline.js` marks with a screen-space orange outline. Dragging adjusts that joint's `node.dofs` with damped least squares on a finite-difference screen-space Jacobian, so the part follows the cursor from any view; angles are clamped to the `DOFS` limits and written into `pose`. Dragging the body moves the ant on the ground (`global.x/z`), Shift-drag turns it (`global.yaw/pitch`).
+- [x] Clicking empty space falls through to camera control; a click without dragging deselects. `ui/selection-panel.js` shows the selected part.
 
 ## Phase 6: OBJ model (+10 pts, Model 15 → 25)
 - [x] `assets/models/Ant.blend` split into the 28 nodes of `src/insect.js` (same names), each with its origin at the joint pivot and parented like the scene graph.
