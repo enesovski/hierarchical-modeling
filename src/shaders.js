@@ -44,13 +44,11 @@ uniform vec2 uUvScale;        // > 1 repeats the texture (ground)
 uniform vec3 uLightDir;       // view space, unit vector pointing towards the light
 uniform float uSpecular;      // specular strength of this part's material
 uniform float uShininess;     // Blinn-Phong exponent
-uniform float uHighlight;     // 0..1 tint for the selected part
 
 out vec4 outColor;
 
 const vec3 LIGHT_COLOR = vec3(1.0);
 const vec3 AMBIENT = vec3(0.28);
-const vec3 HIGHLIGHT_COLOR = vec3(1.0, 0.85, 0.3);
 
 void main() {
     bool textured = (uRenderMode == 1 || uRenderMode == 3) && uHasTexture;
@@ -71,7 +69,6 @@ void main() {
         color = albedo * (AMBIENT + diffuse * LIGHT_COLOR) + uSpecular * specular * LIGHT_COLOR;
     }
 
-    color = mix(color, HIGHLIGHT_COLOR, uHighlight);
     outColor = vec4(color, 1.0);
 }
 `;

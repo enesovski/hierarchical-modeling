@@ -9,7 +9,6 @@ import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 // Index = value of uRenderMode in the fragment shader.
 export const RENDER_MODES = ["Color", "Texture", "Shading", "Shaded texture"];
 
-const HIGHLIGHT_MIX = 0.35;
 const DEFAULT_SPECULAR = 0.3;
 const DEFAULT_SHININESS = 32;
 const NO_UV_SCALE = [1, 1];
@@ -21,14 +20,14 @@ export function createRenderer(gl, textures) {
     for (const name of [
         "uModelView", "uProjection", "uNormalMatrix", "uRenderMode", "uColor",
         "uHasTexture", "uTexture", "uUvScale", "uLightDir", "uSpecular",
-        "uShininess", "uHighlight",
+        "uShininess",
     ]) {
         uniforms[name] = gl.getUniformLocation(program, name);
     }
 
     gl.enable(gl.DEPTH_TEST);
 
-    function drawShape(shape, modelView, highlighted = false) {
+    function drawShape(shape, modelView) {
         gl.uniformMatrix4fv(uniforms.uModelView, false, modelView);
         gl.uniformMatrix4fv(uniforms.uNormalMatrix, false, m4.normalMatrix(modelView));
         gl.uniform3fv(uniforms.uColor, shape.color);
@@ -40,11 +39,11 @@ export function createRenderer(gl, textures) {
 
         gl.uniform1f(uniforms.uSpecular, shape.specular ?? DEFAULT_SPECULAR);
         gl.uniform1f(uniforms.uShininess, shape.shininess ?? DEFAULT_SHININESS);
-        gl.uniform1f(uniforms.uHighlight, highlighted ? HIGHLIGHT_MIX : 0);
         drawMesh(gl, shape.mesh);
     }
 
-    // scene: { root, staticShapes, view, projection, renderMode, light, selectedNode }
+    // scene: { root, staticShapes, view, projection, renderMode, light }
+    // (the selected part is marked afterwards by outline.js)
     // light: { azimuth, elevation } in degrees, a directional light in world space.
     function render(scene) {
         gl.clearColor(0.12, 0.14, 0.18, 1.0);
@@ -67,9 +66,7 @@ export function createRenderer(gl, textures) {
             drawShape(shape, m4.multiply(scene.view, shape.matrix));
         }
 
-        drawHierarchy(scene.root, scene.view, (shape, modelView, node) => {
-            drawShape(shape, modelView, node === scene.selectedNode);
-        });
+        drawHierarchy(scene.root, scene.view, (shape, modelView) => drawShape(shape, modelView));
     }
 
     return { render };

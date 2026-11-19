@@ -11,6 +11,7 @@ import { attachDragPosing } from "./drag-pose.js";
 import { createOutline } from "./outline.js";
 import { createPosePanel } from "./ui/pose-panel.js";
 import { createCameraPanel } from "./ui/camera-panel.js";
+import { createRenderPanel } from "./ui/render-panel.js";
 import { createSelectionPanel } from "./ui/selection-panel.js";
 
 const canvas = document.getElementById("glCanvas");
@@ -57,6 +58,7 @@ const picker = createPicker(gl, insect, staticShapes);
 const dragPosing = attachDragPosing(canvas, { picker, camera, root: insect, pose, state });
 attachOrbitControls(canvas, camera, { shouldStart: () => !dragPosing.isDragging() });
 createCameraPanel(panel, camera);
+createRenderPanel(panel, state);
 const selectionPanel = createSelectionPanel(panel, state);
 const posePanel = createPosePanel(panel, pose, DOFS);
 
@@ -79,7 +81,10 @@ function frame() {
 
     const view = camera.viewMatrix();
     const projection = camera.projectionMatrix(canvas.width / canvas.height);
-    renderer.render({ root: insect, staticShapes, view, projection, lighting: state.lighting });
+    renderer.render({
+        root: insect, staticShapes, view, projection,
+        renderMode: state.renderMode, light: state.light,
+    });
     outline.draw({ root: insect, staticShapes, view, projection, selectedNode: state.selectedNode });
     requestAnimationFrame(frame);
 }
