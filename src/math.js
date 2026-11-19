@@ -146,6 +146,25 @@ export function lookAt(eye, target, up) {
     return m;
 }
 
+// Rotation by `rad` about a unit axis [x, y, z] (Rodrigues' formula).
+export function rotationAxis([x, y, z], rad) {
+    const c = Math.cos(rad), s = Math.sin(rad), t = 1 - c;
+    const m = identity();
+    m[0] = c + x * x * t;     m[4] = x * y * t - z * s; m[8] = x * z * t + y * s;
+    m[1] = y * x * t + z * s; m[5] = c + y * y * t;     m[9] = y * z * t - x * s;
+    m[2] = z * x * t - y * s; m[6] = z * y * t + x * s; m[10] = c + z * z * t;
+    return m;
+}
+
+// Multiplies a point by m (w = 1).
+export function transformPoint(m, [x, y, z]) {
+    return [
+        m[0] * x + m[4] * y + m[8] * z + m[12],
+        m[1] * x + m[5] * y + m[9] * z + m[13],
+        m[2] * x + m[6] * y + m[10] * z + m[14],
+    ];
+}
+
 // Multiplies a direction by the upper 3x3 of m (w = 0, so translation is ignored).
 export function transformDirection(m, [x, y, z]) {
     return [

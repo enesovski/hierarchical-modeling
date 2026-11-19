@@ -1,4 +1,4 @@
-// The insect: an ant built from primitives as a scene-graph hierarchy.
+// The insect: the ant from assets/models/ant.obj as a scene-graph hierarchy.
 //
 //   thorax (root, global position/orientation)
 //   ├── head
@@ -9,25 +9,31 @@
 //   ├── petiole ── gaster               (waist + abdomen)
 //   └── femur{L,R}{1,2,3} ── tibia ── tarsus   (6 legs, 3 segments each)
 //
-// The pose is a flat object { "node.dof": degrees } (see DOFS). Angles are
-// offsets from the rest pose, so all zeros = standing ant.
+// Parts, parents and joint pivots come from ant.obj + ant.rig.json (exported
+// from Ant.blend). The pose is a flat object { "node.dof": degrees } (see DOFS);
+// angles are offsets from the modelled pose, so all zeros = the ant as modelled.
 // Axes: +Z forward, +Y up, +X to the ant's left.
 
 import * as m4 from "./math.js";
 import { createNode, addChild, forEachNode } from "./scene-graph.js";
 
-const { translation: T, rotationX: Rx, rotationY: Ry, rotationZ: Rz, scaling: S, multiplyAll: mul } = m4;
+const { translation: T, rotationX: Rx, rotationY: Ry, rotationZ: Rz, rotationAxis, multiplyAll: mul } = m4;
 const rad = m4.degToRad;
+const UP = [0, 1, 0];
 
 // ---------------------------------------------------------------------------
 // Degrees of freedom
 // ---------------------------------------------------------------------------
 
-// { key, group, node, name, min, max, step }; group is the UI section.
+// { key, group, node, name, min, max, step, axis, sign }; group is the UI section.
+//   axis "yaw":   turn about the vertical through the joint
+//   axis "raise": turn about the horizontal axis across the segment; + lifts its tip
+//   sign:         +1 / -1, so mirrored parts move the same way for the same angle
+// A node's rotations are applied in the order its DOFs are declared.
 export const DOFS = [];
 
-function addDof(group, node, name, min, max, step = 1) {
-    DOFS.push({ key: `${node}.${name}`, group, node, name, min, max, step });
+function addDof(group, node, name, min, max, { axis = null, sign = 1, step = 1 } = {}) {
+    DOFS.push({ key: `${node}.${name}`, group, node, name, min, max, step, axis, sign });
 }
 
 const SIDES = [
@@ -35,39 +41,33 @@ const SIDES = [
     { id: "R", sign: -1 },
 ];
 
-// Leg pairs from front (1) to back (3). splay: rest angle, positive = forward.
-const LEG_PAIRS = [
-    { id: 1, z: 0.5, splay: 35 },
-    { id: 2, z: 0.0, splay: 0 },
-    { id: 3, z: -0.45, splay: -35 },
-];
-
-addDof("Body", "global", "x", -10, 10, 0.1);
-addDof("Body", "global", "y", -1, 4, 0.1);
-addDof("Body", "global", "z", -10, 10, 0.1);
+addDof("Body", "global", "x", -10, 10, { step: 0.1 });
+addDof("Body", "global", "y", -1, 4, { step: 0.1 });
+addDof("Body", "global", "z", -10, 10, { step: 0.1 });
 addDof("Body", "global", "yaw", -180, 180);
 addDof("Body", "global", "pitch", -90, 90);
 addDof("Body", "global", "roll", -180, 180);
 
-addDof("Head", "head", "pitch", -30, 40);     // + nods down
-addDof("Head", "head", "yaw", -40, 40);       // + turns left
-for (const { id } of SIDES) {
-    addDof("Antennae & mandibles", `scape${id}`, "yaw", -30, 40);       // + outward
-    addDof("Antennae & mandibles", `scape${id}`, "pitch", -40, 50);     // + raises
-    addDof("Antennae & mandibles", `funiculus${id}`, "bend", -50, 50);  // + bends down
-    addDof("Antennae & mandibles", `mandible${id}`, "open", -15, 35);   // + opens
+addDof("Head", "head", "yaw", -40, 40, { axis: "yaw" });                  // + turns left
+addDof("Head", "head", "pitch", -30, 40, { axis: "raise", sign: -1 });    // + nods down
+for (const { id, sign } of SIDES) {
+    const group = "Antennae & mandibles";
+    addDof(group, `scape${id}`, "yaw", -30, 40, { axis: "yaw", sign });               // + outward
+    addDof(group, `scape${id}`, "pitch", -40, 50, { axis: "raise" });                 // + raises
+    addDof(group, `funiculus${id}`, "bend", -50, 50, { axis: "raise", sign: -1 });    // + bends down
+    addDof(group, `mandible${id}`, "open", -15, 35, { axis: "yaw", sign });           // + opens
 }
-addDof("Abdomen", "petiole", "pitch", -30, 30);  // + raises
-addDof("Abdomen", "petiole", "yaw", -30, 30);
-addDof("Abdomen", "gaster", "pitch", -40, 40);   // + raises
-addDof("Abdomen", "gaster", "yaw", -30, 30);
-for (const { id: side } of SIDES) {
-    for (const { id: pair } of LEG_PAIRS) {
+addDof("Abdomen", "petiole", "yaw", -30, 30, { axis: "yaw" });
+addDof("Abdomen", "petiole", "pitch", -30, 30, { axis: "raise" });  // + raises
+addDof("Abdomen", "gaster", "yaw", -30, 30, { axis: "yaw" });
+addDof("Abdomen", "gaster", "pitch", -40, 40, { axis: "raise" });   // + raises
+for (const { id: side, sign } of SIDES) {
+    for (const pair of [1, 2, 3]) {
         const group = `Leg ${side}${pair}`;
-        addDof(group, `femur${side}${pair}`, "swing", -45, 45);  // + forward
-        addDof(group, `femur${side}${pair}`, "lift", -40, 50);   // + raises the leg
-        addDof(group, `tibia${side}${pair}`, "bend", -40, 40);   // + bends the knee down
-        addDof(group, `tarsus${side}${pair}`, "bend", -40, 40);  // + bends the foot down
+        addDof(group, `femur${side}${pair}`, "swing", -45, 45, { axis: "yaw", sign: -sign });  // + forward
+        addDof(group, `femur${side}${pair}`, "lift", -40, 50, { axis: "raise" });              // + raises the leg
+        addDof(group, `tibia${side}${pair}`, "bend", -40, 40, { axis: "raise", sign: -1 });    // + bends the knee down
+        addDof(group, `tarsus${side}${pair}`, "bend", -40, 40, { axis: "raise", sign: -1 });   // + bends the foot down
     }
 }
 
@@ -82,179 +82,104 @@ export function resetPose(pose) {
 }
 
 // ---------------------------------------------------------------------------
-// Dimensions (world units)
+// Materials: colour (Color/Shading modes), texture (Texture modes) and
+// Blinn-Phong settings. All parts share the model's diffuse map ("ant").
 // ---------------------------------------------------------------------------
 
-const FEMUR = { length: 1.1, thickness: 0.14, restLift: 35 };
-const TIBIA = { length: 1.3, thickness: 0.1, restBend: 110 };
-const TARSUS = { length: 0.6, thickness: 0.06, restBend: -45 };
-const HIP_Y = -0.2;
-
-// Height of the thorax above the ground so the rest-pose feet touch y = 0.
-const BODY_HEIGHT = (() => {
-    const femurAngle = FEMUR.restLift;
-    const tibiaAngle = femurAngle - TIBIA.restBend;
-    const tarsusAngle = tibiaAngle - TARSUS.restBend;
-    const tipY =
-        HIP_Y +
-        FEMUR.length * Math.sin(rad(femurAngle)) +
-        TIBIA.length * Math.sin(rad(tibiaAngle)) +
-        TARSUS.length * Math.sin(rad(tarsusAngle));
-    return -tipY + TARSUS.thickness / 2;
-})();
-
-// Per-part material: colour (Color/Shading modes), texture name (Texture
-// modes, see textures.js) and Blinn-Phong specular settings. Ant cuticle is
-// glossy; the compound eyes are the shiniest part.
 const MATERIALS = {
-    body: { color: [0.42, 0.16, 0.08], texture: "chitin", specular: 0.45, shininess: 40 },
-    leg: { color: [0.33, 0.12, 0.06], texture: "leg", specular: 0.35, shininess: 30 },
-    joint: { color: [0.22, 0.08, 0.04], texture: "leg", specular: 0.3, shininess: 30 },
-    mandible: { color: [0.2, 0.07, 0.03], texture: "leg", specular: 0.5, shininess: 50 },
-    eye: { color: [0.05, 0.05, 0.06], texture: "eye", specular: 0.9, shininess: 90 },
+    body: { color: [0.36, 0.17, 0.07], texture: "ant", specular: 0.45, shininess: 40 },
+    limb: { color: [0.45, 0.25, 0.1], texture: "ant", specular: 0.35, shininess: 30 },
+    mandible: { color: [0.22, 0.09, 0.04], texture: "ant", specular: 0.5, shininess: 50 },
 };
 
-// ---------------------------------------------------------------------------
-// Shape helpers: place a unit primitive inside a node's local frame
-// ---------------------------------------------------------------------------
-
-function ellipsoid(mesh, [cx, cy, cz], [sx, sy, sz], material) {
-    return { mesh, matrix: mul(T(cx, cy, cz), S(sx, sy, sz)), ...material };
-}
-
-// A rod from the joint (origin) along local +X. The unit cylinder runs along Y,
-// so it is rotated -90 deg about Z to lie along +X.
-function rodX(mesh, length, thickness, material) {
-    return {
-        mesh,
-        matrix: mul(T(length / 2, 0, 0), Rz(-Math.PI / 2), S(thickness, length, thickness)),
-        ...material,
-    };
-}
-
-// A rod from the joint along local +Z (rotate Y onto +Z).
-function rodZ(mesh, length, thickness, material) {
-    return {
-        mesh,
-        matrix: mul(T(0, 0, length / 2), Rx(Math.PI / 2), S(thickness, length, thickness)),
-        ...material,
-    };
-}
-
-function ball(mesh, diameter, material) {
-    return ellipsoid(mesh, [0, 0, 0], [diameter, diameter, diameter], material);
+function materialFor(name) {
+    if (["thorax", "head", "petiole", "gaster"].includes(name)) return MATERIALS.body;
+    return name.startsWith("mandible") ? MATERIALS.mandible : MATERIALS.limb;
 }
 
 // ---------------------------------------------------------------------------
 // Hierarchy
 // ---------------------------------------------------------------------------
 
-// meshes: { box, sphere, cylinder } uploaded with createMesh
-export function buildInsect(meshes) {
-    const { sphere, cylinder } = meshes;
+// OBJ vertices are in model space; move them so the joint pivot is the origin.
+// `centre` (bounding-box centre, pivot-relative) is the part's drag handle.
+function createShape(name, data, pivot, uploadMesh) {
+    const positions = data.positions.map((value, i) => value - pivot[i % 3]);
+    const min = [Infinity, Infinity, Infinity];
+    const max = [-Infinity, -Infinity, -Infinity];
+    positions.forEach((value, i) => {
+        min[i % 3] = Math.min(min[i % 3], value);
+        max[i % 3] = Math.max(max[i % 3], value);
+    });
+    return {
+        mesh: uploadMesh({ ...data, positions }),
+        matrix: m4.identity(),
+        centre: min.map((value, i) => (value + max[i]) / 2),
+        ...materialFor(name),
+    };
+}
 
-    const thorax = createNode(
-        "thorax",
-        (p) => mul(
-            T(p["global.x"], BODY_HEIGHT + p["global.y"], p["global.z"]),
-            Ry(rad(p["global.yaw"])),
-            Rx(rad(p["global.pitch"])),
-            Rz(rad(p["global.roll"]))
-        ),
-        [
-            ellipsoid(sphere, [0, 0, -0.1], [0.7, 0.55, 1.4], MATERIALS.body),
-            ellipsoid(sphere, [0, 0.08, 0.45], [0.65, 0.6, 0.75], MATERIALS.body),
-        ]
+// Horizontal axis across a segment pointing along `direction`. Rotating by a
+// positive angle about it lifts the segment's tip: (d x up) x d points up.
+function raiseAxis(direction) {
+    return m4.normalize(m4.cross(direction, UP));
+}
+
+function rootTransform(pivot) {
+    return (p) => mul(
+        T(pivot[0] + p["global.x"], pivot[1] + p["global.y"], pivot[2] + p["global.z"]),
+        Ry(rad(p["global.yaw"])),
+        Rx(rad(p["global.pitch"])),
+        Rz(rad(p["global.roll"]))
     );
+}
 
-    // ---- Head with antennae and mandibles ----
-    const head = addChild(thorax, createNode(
-        "head",
-        (p) => mul(T(0, 0.15, 0.8), Ry(rad(p["head.yaw"])), Rx(rad(10 + p["head.pitch"]))),
-        [
-            ball(sphere, 0.3, MATERIALS.joint), // neck
-            ellipsoid(sphere, [0, 0.05, 0.45], [0.9, 0.8, 0.95], MATERIALS.body),
-        ]
-    ));
+// Translate from the parent's pivot to this joint, then apply the joint's DOFs.
+// The axes are fixed in the rest pose; the parts are not pre-rotated.
+function jointTransform(dofs, offset, direction) {
+    const axes = dofs.map((dof) => (dof.axis === "yaw" ? UP : raiseAxis(direction)));
+    return (p) => mul(
+        T(...offset),
+        ...dofs.map((dof, i) => rotationAxis(axes[i], rad(dof.sign * p[dof.key])))
+    );
+}
 
-    for (const { id, sign } of SIDES) {
-        // Eyes are rigidly attached to the head: extra shapes, no joint.
-        head.shapes.push(ellipsoid(sphere, [sign * 0.4, 0.15, 0.55], [0.2, 0.25, 0.25], MATERIALS.eye));
+// rig: ant.rig.json ({ parts: [{ name, parent, pivot }] }, parents listed first)
+// parts: OBJ mesh data by name (obj-loader.js); uploadMesh: data -> GPU mesh
+export function buildInsect(rig, parts, uploadMesh) {
+    const nodes = new Map();
+    const pivotOf = new Map(rig.parts.map((part) => [part.name, part.pivot]));
 
-        const scape = addChild(head, createNode(
-            `scape${id}`,
-            (p) => mul(
-                T(sign * 0.2, 0.3, 0.75),
-                Ry(rad(sign * (25 + p[`scape${id}.yaw`]))),
-                Rx(rad(-(45 + p[`scape${id}.pitch`])))
-            ),
-            [ball(sphere, 0.13, MATERIALS.joint), rodZ(cylinder, 0.8, 0.08, MATERIALS.leg)]
-        ));
-        addChild(scape, createNode(
-            `funiculus${id}`,
-            (p) => mul(T(0, 0, 0.8), Rx(rad(85 + p[`funiculus${id}.bend`]))),
-            [
-                ball(sphere, 0.11, MATERIALS.joint),
-                rodZ(cylinder, 1.0, 0.07, MATERIALS.leg),
-                ellipsoid(sphere, [0, 0, 1.0], [0.12, 0.12, 0.28], MATERIALS.leg), // club tip
-            ]
-        ));
+    for (const { name, parent, pivot } of rig.parts) {
+        if (!parts[name]) throw new Error(`ant.obj has no object "${name}"`);
+        const shape = createShape(name, parts[name], pivot, uploadMesh);
 
-        addChild(head, createNode(
-            `mandible${id}`,
-            (p) => mul(T(sign * 0.2, -0.15, 0.8), Ry(rad(sign * (-15 + p[`mandible${id}.open`])))),
-            [rodZ(cylinder, 0.45, 0.1, MATERIALS.mandible)]
-        ));
-    }
-
-    // ---- Waist and abdomen ----
-    const petiole = addChild(thorax, createNode(
-        "petiole",
-        (p) => mul(T(0, 0.05, -0.8), Ry(rad(p["petiole.yaw"])), Rx(rad(p["petiole.pitch"]))),
-        [ellipsoid(sphere, [0, 0.05, -0.2], [0.3, 0.35, 0.4], MATERIALS.body)]
-    ));
-    addChild(petiole, createNode(
-        "gaster",
-        (p) => mul(T(0, 0.05, -0.38), Ry(rad(p["gaster.yaw"])), Rx(rad(-15 + p["gaster.pitch"]))),
-        [ellipsoid(sphere, [0, 0, -0.85], [1.1, 1.0, 1.7], MATERIALS.body)]
-    ));
-
-    // ---- Legs ----
-    // Each leg segment is a rod along its local +X. Right legs are turned 180 deg
-    // about Y so +X points outward on both sides; after that turn the swing angle
-    // needs the opposite sign to move the leg forward, hence -sign * swing.
-    for (const { id: side, sign } of SIDES) {
-        for (const pair of LEG_PAIRS) {
-            const name = `${side}${pair.id}`;
-            const femur = addChild(thorax, createNode(
-                `femur${name}`,
-                (p) => mul(
-                    T(sign * 0.3, HIP_Y, pair.z),
-                    Ry(sign === 1 ? 0 : Math.PI),
-                    Ry(rad(-sign * (pair.splay + p[`femur${name}.swing`]))),
-                    Rz(rad(FEMUR.restLift + p[`femur${name}.lift`]))
-                ),
-                [ball(sphere, 0.22, MATERIALS.joint), rodX(cylinder, FEMUR.length, FEMUR.thickness, MATERIALS.leg)]
-            ));
-            const tibia = addChild(femur, createNode(
-                `tibia${name}`,
-                (p) => mul(T(FEMUR.length, 0, 0), Rz(rad(-(TIBIA.restBend + p[`tibia${name}.bend`])))),
-                [ball(sphere, 0.17, MATERIALS.joint), rodX(cylinder, TIBIA.length, TIBIA.thickness, MATERIALS.leg)]
-            ));
-            addChild(tibia, createNode(
-                `tarsus${name}`,
-                (p) => mul(T(TIBIA.length, 0, 0), Rz(rad(-(TARSUS.restBend + p[`tarsus${name}.bend`])))),
-                [ball(sphere, 0.12, MATERIALS.joint), rodX(cylinder, TARSUS.length, TARSUS.thickness, MATERIALS.leg)]
-            ));
+        if (parent === null) {
+            nodes.set(name, createNode(name, rootTransform(pivot), [shape]));
+            continue;
         }
+
+        // A segment points at its only child joint (leg, antenna, waist);
+        // otherwise at its own centre (head, tips of chains).
+        const children = rig.parts.filter((part) => part.parent === name);
+        const direction = children.length === 1
+            ? m4.subtract(children[0].pivot, pivot)
+            : shape.centre;
+
+        const dofs = DOFS.filter((dof) => dof.node === name);
+        const offset = m4.subtract(pivot, pivotOf.get(parent));
+        const node = createNode(name, jointTransform(dofs, offset, direction), [shape]);
+        addChild(nodes.get(parent), node);
+        nodes.set(name, node);
     }
 
-    // Tell each node which pose keys drive its joint (used by picking later).
-    // The root also owns the global position/orientation.
-    forEachNode(thorax, (node) => {
-        const owner = node === thorax ? "global" : node.name;
+    const root = nodes.get(rig.parts.find((part) => part.parent === null).name);
+
+    // Pose keys each node owns (picking/dragging); the root owns the global ones.
+    forEachNode(root, (node) => {
+        const owner = node === root ? "global" : node.name;
         node.dofs = DOFS.filter((d) => d.node === owner).map((d) => d.key);
     });
 
-    return thorax;
+    return root;
 }

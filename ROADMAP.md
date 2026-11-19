@@ -64,11 +64,14 @@ Shared contract, which neither branch changes alone: the `DOFS` keys and `pose` 
 - [x] `src/drag-pose.js`: clicking sets `state.selectedNode`, which `src/outline.js` marks with a screen-space orange outline. Dragging adjusts that joint's `node.dofs` with damped least squares on a finite-difference screen-space Jacobian, so the part follows the cursor from any view; angles are clamped to the `DOFS` limits and written into `pose`. Dragging the body moves the ant on the ground (`global.x/z`), Shift-drag turns it (`global.yaw/pitch`).
 - [x] Clicking empty space falls through to camera control; a click without dragging deselects. `ui/selection-panel.js` shows the selected part.
 
-## Phase 6: OBJ model (+10 pts, Model 15 → 25)
+## Phase 6: OBJ model (+10 pts, Model 15 → 25) ✅
 - [x] `assets/models/Ant.blend` split into the 28 nodes of `src/insect.js` (same names), each with its origin at the joint pivot and parented like the scene graph.
 - [x] Exported `assets/models/ant.obj` (one `o <nodeName>` per part, triangulated, with normals and UVs) + `ant.mtl` (`map_Kd gltf_embedded_0.png`) + `ant.rig.json` (parent and pivot per part).
-- [ ] OBJ parser (`v`/`vn`/`vt`/`f`, split by `o`) that outputs one `createMesh` mesh per part. Vertices are in **rest-pose model space** (Y up, +Z forward, feet at y ≈ 0), not relative to the pivot. Each part's shape therefore uses `matrix = T(-pivot)`, and its node translation is `pivot - parentPivot`.
-- [ ] OBJ joint rotations: the parts keep their rest orientation, so an all-zero pose reproduces the model exactly. Joint axes must come from the model (for example a knee axis perpendicular to the femur–tibia plane). The primitive ant's leg-local axes and lengths do not apply.
+- [x] `src/obj-loader.js`: OBJ parser (`v`/`vt`/`vn`/`f`, one mesh per `o`, polygon faces fan-triangulated) plus `mtllib` → `map_Kd`.
+- [x] `src/insect.js` builds the tree from `ant.rig.json`. Each part's vertices are shifted so its pivot is the origin, and its node translation is `pivot − parentPivot`. All-zero pose = the model.
+- [x] Joint axes come from the model: a "yaw" DOF turns about the vertical, a "raise" DOF about the horizontal axis across its segment. The DOF keys and slider meanings are unchanged, so picking, dragging and future saved animations keep working. Every DOF direction was checked on both sides.
+- [x] The mandible pivots were moved to their hinge in `Ant.blend`. `tools/export_ant.py` re-exports OBJ + rig after model edits.
+- [x] Shaded texture uses the model's diffuse map; Color and Shading modes use per-part colours (body / limbs / mandibles).
 
 ## Before the demo
 - [ ] Test the full flow in Chrome and Firefox from a fresh `python serve.py`.

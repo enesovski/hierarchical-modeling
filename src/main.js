@@ -1,10 +1,11 @@
 import * as m4 from "./math.js";
 import { createMesh } from "./gl-utils.js";
-import { createBox, createSphere, createCylinder } from "./primitives.js";
+import { createBox } from "./primitives.js";
 import { updateTransforms } from "./scene-graph.js";
 import { DOFS, buildInsect, createDefaultPose } from "./insect.js";
 import { createRenderer } from "./renderer.js";
-import { loadTextures } from "./textures.js";
+import { loadTexture, loadTextures } from "./textures.js";
+import { loadObj } from "./obj-loader.js";
 import { OrbitCamera, attachOrbitControls } from "./camera.js";
 import { createPicker } from "./picking.js";
 import { attachDragPosing } from "./drag-pose.js";
@@ -22,22 +23,24 @@ if (!gl) {
     throw new Error("WebGL2 is not supported.");
 }
 
-const meshes = {
-    box: createMesh(gl, createBox()),
-    sphere: createMesh(gl, createSphere()),
-    cylinder: createMesh(gl, createCylinder()),
-};
-
-const insect = buildInsect(meshes);
+// The ant: one OBJ object per body part, joint pivots from the rig file.
+const [antModel, antRig] = await Promise.all([
+    loadObj("./assets/models/ant.obj"),
+    fetch("./assets/models/ant.rig.json").then((response) => response.json()),
+]);
+const insect = buildInsect(antRig, antModel.parts, (data) => createMesh(gl, data));
 const pose = createDefaultPose();
-const renderer = createRenderer(gl, loadTextures(gl));
+
+const textures = loadTextures(gl);
+textures.ant = loadTexture(gl, antModel.diffuseMap);
+const renderer = createRenderer(gl, textures);
 const camera = new OrbitCamera();
 const outline = createOutline(gl);
 
 // Ground slab outside the hierarchy; its top face is at y = 0.
 const staticShapes = [
     {
-        mesh: meshes.box,
+        mesh: createMesh(gl, createBox()),
         matrix: m4.multiply(m4.translation(0, -0.05, 0), m4.scaling(30, 0.1, 30)),
         color: [0.55, 0.5, 0.4],
         texture: "ground",

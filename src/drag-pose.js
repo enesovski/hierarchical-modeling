@@ -25,12 +25,16 @@ const CLICK_TOLERANCE_PX = 3;
 
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
+// A shape's centre in its own mesh coordinates: shape.centre for OBJ parts,
+// the origin for primitives (they are modelled around it).
+const meshCentre = (shape) => shape.centre ?? [0, 0, 0];
+
 // Centre of a shape in its node's local frame.
-const shapeCentre = (shape) => [shape.matrix[12], shape.matrix[13], shape.matrix[14]];
+const shapeCentre = (shape) => m4.transformPoint(shape.matrix, meshCentre(shape));
 
 // World position of a node's "handle": the average centre of its shapes,
-// skipping the joint balls that sit on the pivot (they would barely move
-// when the joint rotates). Uses the renderer's matrix-stack traversal with an
+// skipping shapes centred on the pivot (they would barely move when the
+// joint rotates). Uses the renderer's matrix-stack traversal with an
 // identity view, so `world` is the shape's world matrix.
 function handlePosition(root, node) {
     const offPivot = node.shapes.filter((shape) => Math.hypot(...shapeCentre(shape)) > 1e-6);
@@ -38,9 +42,10 @@ function handlePosition(root, node) {
     const sum = [0, 0, 0];
     drawHierarchy(root, m4.identity(), (shape, world) => {
         if (!handles.has(shape)) return;
-        sum[0] += world[12];
-        sum[1] += world[13];
-        sum[2] += world[14];
+        const p = m4.transformPoint(world, meshCentre(shape));
+        sum[0] += p[0];
+        sum[1] += p[1];
+        sum[2] += p[2];
     });
     return sum.map((s) => s / handles.size);
 }
