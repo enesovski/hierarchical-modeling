@@ -1,0 +1,257 @@
+{
+  "about": "Joint pivots for ant.obj in app coordinates (Y up, ant faces +Z, +X = ant's left). Vertices in ant.obj are in the same rest-pose space.",
+  "parts": [
+    {
+      "name": "thorax",
+      "parent": null,
+      "pivot": [
+        -0.00016,
+        1.761,
+        0.66939
+      ]
+    },
+    {
+      "name": "head",
+      "parent": "thorax",
+      "pivot": [
+        -0.0,
+        1.6377,
+        1.34722
+      ]
+    },
+    {
+      "name": "petiole",
+      "parent": "thorax",
+      "pivot": [
+        0.0,
+        1.54254,
+        -0.02172
+      ]
+    },
+    {
+      "name": "gaster",
+      "parent": "petiole",
+      "pivot": [
+        0.0,
+        1.63199,
+        -0.76299
+      ]
+    },
+    {
+      "name": "scapeL",
+      "parent": "head",
+      "pivot": [
+        0.13854,
+        1.36358,
+        2.19669
+      ]
+    },
+    {
+      "name": "funiculusL",
+      "parent": "scapeL",
+      "pivot": [
+        0.97208,
+        1.44927,
+        2.74922
+      ]
+    },
+    {
+      "name": "mandibleL",
+      "parent": "head",
+      "pivot": [
+        0.19906,
+        1.1357,
+        2.08827
+      ]
+    },
+    {
+      "name": "femurL1",
+      "parent": "thorax",
+      "pivot": [
+        0.09675,
+        1.57296,
+        0.9115
+      ]
+    },
+    {
+      "name": "tibiaL1",
+      "parent": "femurL1",
+      "pivot": [
+        0.75954,
+        1.53222,
+        1.50339
+      ]
+    },
+    {
+      "name": "tarsusL1",
+      "parent": "tibiaL1",
+      "pivot": [
+        0.82521,
+        0.90235,
+        1.88948
+      ]
+    },
+    {
+      "name": "femurL2",
+      "parent": "thorax",
+      "pivot": [
+        0.11576,
+        1.46125,
+        0.47144
+      ]
+    },
+    {
+      "name": "tibiaL2",
+      "parent": "femurL2",
+      "pivot": [
+        1.19544,
+        1.97354,
+        0.11597
+      ]
+    },
+    {
+      "name": "tarsusL2",
+      "parent": "tibiaL2",
+      "pivot": [
+        1.47355,
+        1.054,
+        -0.11337
+      ]
+    },
+    {
+      "name": "femurL3",
+      "parent": "thorax",
+      "pivot": [
+        0.09759,
+        1.43229,
+        0.19259
+      ]
+    },
+    {
+      "name": "tibiaL3",
+      "parent": "femurL3",
+      "pivot": [
+        1.04564,
+        1.88726,
+        -0.96734
+      ]
+    },
+    {
+      "name": "tarsusL3",
+      "parent": "tibiaL3",
+      "pivot": [
+        1.4646,
+        0.87727,
+        -1.56288
+      ]
+    },
+    {
+      "name": "scapeR",
+      "parent": "head",
+      "pivot": [
+        -0.13854,
+        1.36358,
+        2.19669
+      ]
+    },
+    {
+      "name": "funiculusR",
+      "parent": "scapeR",
+      "pivot": [
+        -0.97208,
+        1.44927,
+        2.74922
+      ]
+    },
+    {
+      "name": "mandibleR",
+      "parent": "head",
+      "pivot": [
+        -0.17938,
+        1.12194,
+        2.1148
+      ]
+    },
+    {
+      "name": "femurR1",
+      "parent": "thorax",
+      "pivot": [
+        -0.09675,
+        1.57296,
+        0.9115
+      ]
+    },
+    {
+      "name": "tibiaR1",
+      "parent": "femurR1",
+      "pivot": [
+        -0.75954,
+        1.53222,
+        1.50339
+      ]
+    },
+    {
+      "name": "tarsusR1",
+      "parent": "tibiaR1",
+      "pivot": [
+        -0.82521,
+        0.90235,
+        1.88948
+      ]
+    },
+    {
+      "name": "femurR2",
+      "parent": "thorax",
+      "pivot": [
+        -0.11576,
+        1.46125,
+        0.47144
+      ]
+    },
+    {
+      "name": "tibiaR2",
+      "parent": "femurR2",
+      "pivot": [
+        -1.19544,
+        1.97354,
+        0.11597
+      ]
+    },
+    {
+      "name": "tarsusR2",
+      "parent": "tibiaR2",
+      "pivot": [
+        -1.47355,
+        1.054,
+        -0.11337
+      ]
+    },
+    {
+      "name": "femurR3",
+      "parent": "thorax",
+      "pivot": [
+        -0.09759,
+        1.43229,
+        0.19259
+      ]
+    },
+    {
+      "name": "tibiaR3",
+      "parent": "femurR3",
+      "pivot": [
+        -1.04564,
+        1.88726,
+        -0.96734
+      ]
+    },
+    {
+      "name": "tarsusR3",
+      "parent": "tibiaR3",
+      "pivot": [
+        -1.4646,
+        0.87727,
+        -1.56288
+      ]
+    }
+  ]
+}

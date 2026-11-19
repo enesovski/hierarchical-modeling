@@ -65,8 +65,10 @@ Shared contract, which neither branch changes alone: the `DOFS` keys and `pose` 
 - [ ] Clicking empty space falls through to camera control.
 
 ## Phase 6: OBJ model (+10 pts, Model 15 → 25)
-- [ ] Model the ant in Blender with **one OBJ per node** in `src/insect.js`, each with its origin at that node's joint pivot and its axes matching the node's local frame (+Z forward, +Y up; leg segments along local +X). Export with normals and UVs into `assets/models/`.
-- [ ] Minimal OBJ parser (`v`/`vn`/`vt`/`f`, triangulating faces) that outputs the `createMesh` format. Each node's `shapes` then uses the OBJ mesh with an identity matrix, and the joint transforms stay unchanged.
+- [x] `assets/models/Ant.blend` split into the 28 nodes of `src/insect.js` (same names), each with its origin at the joint pivot and parented like the scene graph.
+- [x] Exported `assets/models/ant.obj` (one `o <nodeName>` per part, triangulated, with normals and UVs) + `ant.mtl` (`map_Kd gltf_embedded_0.png`) + `ant.rig.json` (parent and pivot per part).
+- [ ] OBJ parser (`v`/`vn`/`vt`/`f`, split by `o`) that outputs one `createMesh` mesh per part. Vertices are in **rest-pose model space** (Y up, +Z forward, feet at y ≈ 0), not relative to the pivot. Each part's shape therefore uses `matrix = T(-pivot)`, and its node translation is `pivot - parentPivot`.
+- [ ] OBJ joint rotations: the parts keep their rest orientation, so an all-zero pose reproduces the model exactly. Joint axes must come from the model (for example a knee axis perpendicular to the femur–tibia plane). The primitive ant's leg-local axes and lengths do not apply.
 
 ## Before the demo
 - [ ] Test the full flow in Chrome and Firefox from a fresh `python serve.py`.
