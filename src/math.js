@@ -146,6 +146,15 @@ export function lookAt(eye, target, up) {
     return m;
 }
 
+// Multiplies a direction by the upper 3x3 of m (w = 0, so translation is ignored).
+export function transformDirection(m, [x, y, z]) {
+    return [
+        m[0] * x + m[4] * y + m[8] * z,
+        m[1] * x + m[5] * y + m[9] * z,
+        m[2] * x + m[6] * y + m[10] * z,
+    ];
+}
+
 // ---- vec3 helpers (plain arrays) ----
 
 export function subtract(a, b) {

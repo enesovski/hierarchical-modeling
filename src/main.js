@@ -4,9 +4,11 @@ import { createBox, createSphere, createCylinder } from "./primitives.js";
 import { updateTransforms } from "./scene-graph.js";
 import { DOFS, buildInsect, createDefaultPose } from "./insect.js";
 import { createRenderer } from "./renderer.js";
+import { loadTextures } from "./textures.js";
 import { OrbitCamera, attachOrbitControls } from "./camera.js";
 import { createPosePanel } from "./ui/pose-panel.js";
 import { createCameraPanel } from "./ui/camera-panel.js";
+import { createRenderPanel } from "./ui/render-panel.js";
 
 const canvas = document.getElementById("glCanvas");
 const panel = document.getElementById("panel");
@@ -24,7 +26,7 @@ const meshes = {
 
 const insect = buildInsect(meshes);
 const pose = createDefaultPose();
-const renderer = createRenderer(gl);
+const renderer = createRenderer(gl, loadTextures(gl));
 const camera = new OrbitCamera();
 
 // Ground slab outside the hierarchy; its top face is at y = 0.
@@ -33,21 +35,23 @@ const staticShapes = [
         mesh: meshes.box,
         matrix: m4.multiply(m4.translation(0, -0.05, 0), m4.scaling(30, 0.1, 30)),
         color: [0.55, 0.5, 0.4],
+        texture: "ground",
+        uvScale: [8, 8],   // repeat the soil texture across the large slab
+        specular: 0.05,
+        shininess: 8,
     },
 ];
 
 const state = {
-    lighting: true,
+    renderMode: 3,                          // index into RENDER_MODES (shaded texture)
+    light: { azimuth: 35, elevation: 55 },  // degrees, world space
     selectedNode: null,
 };
 
 attachOrbitControls(canvas, camera);
 createCameraPanel(panel, camera);
+createRenderPanel(panel, state);
 const posePanel = createPosePanel(panel, pose, DOFS);
-
-window.addEventListener("keydown", (e) => {
-    if (e.key === "l" || e.key === "L") state.lighting = !state.lighting;
-});
 
 function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
@@ -70,7 +74,8 @@ function frame() {
         staticShapes,
         view: camera.viewMatrix(),
         projection: camera.projectionMatrix(canvas.width / canvas.height),
-        lighting: state.lighting,
+        renderMode: state.renderMode,
+        light: state.light,
         selectedNode: state.selectedNode,
     });
     requestAnimationFrame(frame);
