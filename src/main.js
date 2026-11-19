@@ -10,10 +10,12 @@ import { OrbitCamera, attachOrbitControls } from "./camera.js";
 import { createPicker } from "./picking.js";
 import { attachDragPosing } from "./drag-pose.js";
 import { createOutline } from "./outline.js";
+import { AnimationPlayer } from "./animation.js";
 import { createPosePanel } from "./ui/pose-panel.js";
 import { createCameraPanel } from "./ui/camera-panel.js";
 import { createRenderPanel } from "./ui/render-panel.js";
 import { createSelectionPanel } from "./ui/selection-panel.js";
+import { createTimeline } from "./ui/timeline.js";
 
 const canvas = document.getElementById("glCanvas");
 const panel = document.getElementById("panel");
@@ -30,6 +32,7 @@ const [antModel, antRig] = await Promise.all([
 ]);
 const insect = buildInsect(antRig, antModel.parts, (data) => createMesh(gl, data));
 const pose = createDefaultPose();
+const player = new AnimationPlayer(pose);
 
 const textures = loadTextures(gl);
 textures.ant = loadTexture(gl, antModel.diffuseMap);
@@ -63,6 +66,7 @@ attachOrbitControls(canvas, camera, { shouldStart: () => !dragPosing.isDragging(
 createCameraPanel(panel, camera);
 createRenderPanel(panel, state);
 const selectionPanel = createSelectionPanel(panel, state);
+const timeline = createTimeline(document.getElementById("timeline"), player, pose, state);
 const posePanel = createPosePanel(panel, pose, DOFS);
 
 function resizeCanvas() {
@@ -76,8 +80,16 @@ function resizeCanvas() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 
-function frame() {
+let lastTime = null;
+
+function frame(now) {
+    // Seconds since the last frame, capped so a background tab does not jump ahead.
+    const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.1);
+    lastTime = now;
+
     resizeCanvas();
+    player.update(dt);          // writes the animated pose before it is drawn
+    timeline.sync();
     updateTransforms(insect, pose);
     posePanel.sync();
     selectionPanel.sync();
@@ -95,4 +107,4 @@ function frame() {
 requestAnimationFrame(frame);
 
 // Console handle for debugging.
-window.app = { pose, camera, state, insect };
+window.app = { pose, camera, state, insect, player };

@@ -1,0 +1,725 @@
+{
+ "version": 2,
+ "name": "looking-around",
+ "fps": 30,
+ "length": 180,
+ "loop": true,
+ "interpolation": "ease",
+ "tracks": {
+  "Body": [
+   {
+    "frame": 0,
+    "values": {
+     "global.x": 0,
+     "global.y": 0,
+     "global.z": 0,
+     "global.yaw": 0,
+     "global.pitch": 0,
+     "global.roll": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "global.x": 0,
+     "global.y": 0,
+     "global.z": 0,
+     "global.yaw": 8,
+     "global.pitch": 0,
+     "global.roll": -3
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "global.x": 0,
+     "global.y": -0.15,
+     "global.z": 0,
+     "global.yaw": 0,
+     "global.pitch": 7,
+     "global.roll": 0
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "global.x": 0,
+     "global.y": 0,
+     "global.z": 0,
+     "global.yaw": -8,
+     "global.pitch": 0,
+     "global.roll": 3
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "global.x": 0,
+     "global.y": 0.15,
+     "global.z": 0,
+     "global.yaw": 0,
+     "global.pitch": -6,
+     "global.roll": 0
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "global.x": 0,
+     "global.y": 0,
+     "global.z": 0,
+     "global.yaw": 0,
+     "global.pitch": 0,
+     "global.roll": 0
+    }
+   }
+  ],
+  "Abdomen": [
+   {
+    "frame": 0,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 0,
+     "gaster.pitch": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": -6,
+     "gaster.pitch": 0
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 0,
+     "gaster.pitch": 8
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 6,
+     "gaster.pitch": 0
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 0,
+     "gaster.pitch": -6
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 0,
+     "gaster.pitch": 0
+    }
+   }
+  ],
+  "Leg L1": [
+   {
+    "frame": 0,
+    "values": {
+     "femurL1.swing": 0,
+     "femurL1.lift": 0,
+     "tibiaL1.bend": 0,
+     "tarsusL1.bend": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "femurL1.swing": 6.87,
+     "femurL1.lift": 1.46,
+     "tibiaL1.bend": 0.09,
+     "tarsusL1.bend": 0.23
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "femurL1.swing": 10.74,
+     "femurL1.lift": 18.19,
+     "tibiaL1.bend": 6.86,
+     "tarsusL1.bend": 7.36
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "femurL1.swing": -7.57,
+     "femurL1.lift": -2.41,
+     "tibiaL1.bend": -0.33,
+     "tarsusL1.bend": -0.38
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "femurL1.swing": -16.41,
+     "femurL1.lift": -22.02,
+     "tibiaL1.bend": -12.97,
+     "tarsusL1.bend": -5.21
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "femurL1.swing": 0,
+     "femurL1.lift": 0,
+     "tibiaL1.bend": 0,
+     "tarsusL1.bend": 0
+    }
+   }
+  ],
+  "Leg L2": [
+   {
+    "frame": 0,
+    "values": {
+     "femurL2.swing": 0,
+     "femurL2.lift": 0,
+     "tibiaL2.bend": 0,
+     "tarsusL2.bend": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "femurL2.swing": 9.46,
+     "femurL2.lift": 2.31,
+     "tibiaL2.bend": -1.32,
+     "tarsusL2.bend": -0.26
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "femurL2.swing": 3.74,
+     "femurL2.lift": 2.86,
+     "tibiaL2.bend": 3.73,
+     "tarsusL2.bend": 1.69
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "femurL2.swing": -10.29,
+     "femurL2.lift": -2.09,
+     "tibiaL2.bend": 1.07,
+     "tarsusL2.bend": 0.01
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "femurL2.swing": -3.09,
+     "femurL2.lift": -3.15,
+     "tibiaL2.bend": -4.31,
+     "tarsusL2.bend": -1.74
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "femurL2.swing": 0,
+     "femurL2.lift": 0,
+     "tibiaL2.bend": 0,
+     "tarsusL2.bend": 0
+    }
+   }
+  ],
+  "Leg L3": [
+   {
+    "frame": 0,
+    "values": {
+     "femurL3.swing": 0,
+     "femurL3.lift": 0,
+     "tibiaL3.bend": 0,
+     "tarsusL3.bend": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "femurL3.swing": 10.03,
+     "femurL3.lift": 0.83,
+     "tibiaL3.bend": -1.93,
+     "tarsusL3.bend": -0.65
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "femurL3.swing": 2.32,
+     "femurL3.lift": -2.1,
+     "tibiaL3.bend": 2.96,
+     "tarsusL3.bend": 1.39
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "femurL3.swing": -10.52,
+     "femurL3.lift": -0.52,
+     "tibiaL3.bend": 1.18,
+     "tarsusL3.bend": 0.35
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "femurL3.swing": -1.7,
+     "femurL3.lift": 0.86,
+     "tibiaL3.bend": -3.63,
+     "tarsusL3.bend": -1.34
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "femurL3.swing": 0,
+     "femurL3.lift": 0,
+     "tibiaL3.bend": 0,
+     "tarsusL3.bend": 0
+    }
+   }
+  ],
+  "Leg R1": [
+   {
+    "frame": 0,
+    "values": {
+     "femurR1.swing": 0,
+     "femurR1.lift": 0,
+     "tibiaR1.bend": 0,
+     "tarsusR1.bend": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "femurR1.swing": -7.57,
+     "femurR1.lift": -2.41,
+     "tibiaR1.bend": -0.33,
+     "tarsusR1.bend": -0.38
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "femurR1.swing": 10.74,
+     "femurR1.lift": 18.19,
+     "tibiaR1.bend": 6.86,
+     "tarsusR1.bend": 7.36
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "femurR1.swing": 6.87,
+     "femurR1.lift": 1.46,
+     "tibiaR1.bend": 0.09,
+     "tarsusR1.bend": 0.23
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "femurR1.swing": -16.41,
+     "femurR1.lift": -22.02,
+     "tibiaR1.bend": -12.97,
+     "tarsusR1.bend": -5.21
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "femurR1.swing": 0,
+     "femurR1.lift": 0,
+     "tibiaR1.bend": 0,
+     "tarsusR1.bend": 0
+    }
+   }
+  ],
+  "Leg R2": [
+   {
+    "frame": 0,
+    "values": {
+     "femurR2.swing": 0,
+     "femurR2.lift": 0,
+     "tibiaR2.bend": 0,
+     "tarsusR2.bend": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "femurR2.swing": -10.29,
+     "femurR2.lift": -2.09,
+     "tibiaR2.bend": 1.08,
+     "tarsusR2.bend": 0.01
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "femurR2.swing": 3.74,
+     "femurR2.lift": 2.86,
+     "tibiaR2.bend": 3.73,
+     "tarsusR2.bend": 1.69
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "femurR2.swing": 9.46,
+     "femurR2.lift": 2.31,
+     "tibiaR2.bend": -1.32,
+     "tarsusR2.bend": -0.26
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "femurR2.swing": -3.09,
+     "femurR2.lift": -3.15,
+     "tibiaR2.bend": -4.31,
+     "tarsusR2.bend": -1.74
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "femurR2.swing": 0,
+     "femurR2.lift": 0,
+     "tibiaR2.bend": 0,
+     "tarsusR2.bend": 0
+    }
+   }
+  ],
+  "Leg R3": [
+   {
+    "frame": 0,
+    "values": {
+     "femurR3.swing": 0,
+     "femurR3.lift": 0,
+     "tibiaR3.bend": 0,
+     "tarsusR3.bend": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "femurR3.swing": -10.52,
+     "femurR3.lift": -0.51,
+     "tibiaR3.bend": 1.18,
+     "tarsusR3.bend": 0.35
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "femurR3.swing": 2.32,
+     "femurR3.lift": -2.1,
+     "tibiaR3.bend": 2.96,
+     "tarsusR3.bend": 1.39
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "femurR3.swing": 10.03,
+     "femurR3.lift": 0.83,
+     "tibiaR3.bend": -1.93,
+     "tarsusR3.bend": -0.65
+    }
+   },
+   {
+    "frame": 140,
+    "values": {
+     "femurR3.swing": -1.7,
+     "femurR3.lift": 0.86,
+     "tibiaR3.bend": -3.63,
+     "tarsusR3.bend": -1.34
+    }
+   },
+   {
+    "frame": 165,
+    "values": {
+     "femurR3.swing": 0,
+     "femurR3.lift": 0,
+     "tibiaR3.bend": 0,
+     "tarsusR3.bend": 0
+    }
+   }
+  ],
+  "Head": [
+   {
+    "frame": 0,
+    "values": {
+     "head.yaw": 0,
+     "head.pitch": 0
+    }
+   },
+   {
+    "frame": 25,
+    "values": {
+     "head.yaw": 32,
+     "head.pitch": -5
+    }
+   },
+   {
+    "frame": 50,
+    "values": {
+     "head.yaw": 28,
+     "head.pitch": 8
+    }
+   },
+   {
+    "frame": 75,
+    "values": {
+     "head.yaw": 0,
+     "head.pitch": 28
+    }
+   },
+   {
+    "frame": 105,
+    "values": {
+     "head.yaw": -32,
+     "head.pitch": 0
+    }
+   },
+   {
+    "frame": 128,
+    "values": {
+     "head.yaw": -26,
+     "head.pitch": -10
+    }
+   },
+   {
+    "frame": 150,
+    "values": {
+     "head.yaw": 0,
+     "head.pitch": -22
+    }
+   },
+   {
+    "frame": 170,
+    "values": {
+     "head.yaw": 0,
+     "head.pitch": 0
+    }
+   }
+  ],
+  "Antennae & mandibles": [
+   {
+    "frame": 0,
+    "values": {
+     "scapeL.yaw": 12,
+     "scapeL.pitch": 15,
+     "funiculusL.bend": 0,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 12,
+     "scapeR.pitch": 27,
+     "funiculusR.bend": 15,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 12,
+    "values": {
+     "scapeL.yaw": 29.12,
+     "scapeL.pitch": 26.93,
+     "funiculusL.bend": 8.82,
+     "mandibleL.open": 0,
+     "scapeR.yaw": -5.12,
+     "scapeR.pitch": 13.75,
+     "funiculusR.bend": -12.14,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 24,
+    "values": {
+     "scapeL.yaw": 22.58,
+     "scapeL.pitch": 12.51,
+     "funiculusL.bend": -14.27,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 1.42,
+     "scapeR.pitch": 3.26,
+     "funiculusR.bend": 4.64,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 36,
+    "values": {
+     "scapeL.yaw": 1.42,
+     "scapeL.pitch": 3.59,
+     "funiculusL.bend": 14.27,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 22.58,
+     "scapeR.pitch": 18.71,
+     "funiculusR.bend": 4.64,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 48,
+    "values": {
+     "scapeL.yaw": -5.12,
+     "scapeL.pitch": 19.88,
+     "funiculusL.bend": -8.82,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 29.12,
+     "scapeR.pitch": 25.96,
+     "funiculusR.bend": -12.14,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 60,
+    "values": {
+     "scapeL.yaw": 12,
+     "scapeL.pitch": -25,
+     "funiculusL.bend": 0,
+     "mandibleL.open": 20,
+     "scapeR.yaw": 12,
+     "scapeR.pitch": -25,
+     "funiculusR.bend": 15,
+     "mandibleR.open": 20
+    }
+   },
+   {
+    "frame": 72,
+    "values": {
+     "scapeL.yaw": 29.12,
+     "scapeL.pitch": -25,
+     "funiculusL.bend": 8.82,
+     "mandibleL.open": 20,
+     "scapeR.yaw": -5.12,
+     "scapeR.pitch": -25,
+     "funiculusR.bend": -12.14,
+     "mandibleR.open": 20
+    }
+   },
+   {
+    "frame": 84,
+    "values": {
+     "scapeL.yaw": 22.58,
+     "scapeL.pitch": -25,
+     "funiculusL.bend": -14.27,
+     "mandibleL.open": 20,
+     "scapeR.yaw": 1.42,
+     "scapeR.pitch": -25,
+     "funiculusR.bend": 4.64,
+     "mandibleR.open": 20
+    }
+   },
+   {
+    "frame": 96,
+    "values": {
+     "scapeL.yaw": 1.42,
+     "scapeL.pitch": -25,
+     "funiculusL.bend": 14.27,
+     "mandibleL.open": 20,
+     "scapeR.yaw": 22.58,
+     "scapeR.pitch": -25,
+     "funiculusR.bend": 4.64,
+     "mandibleR.open": 20
+    }
+   },
+   {
+    "frame": 108,
+    "values": {
+     "scapeL.yaw": -5.12,
+     "scapeL.pitch": 22.05,
+     "funiculusL.bend": -8.82,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 29.12,
+     "scapeR.pitch": 5.29,
+     "funiculusR.bend": -12.14,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 120,
+    "values": {
+     "scapeL.yaw": 12,
+     "scapeL.pitch": 4.61,
+     "funiculusL.bend": 0,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 12,
+     "scapeR.pitch": 9,
+     "funiculusR.bend": 15,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 132,
+    "values": {
+     "scapeL.yaw": 29.12,
+     "scapeL.pitch": 10.12,
+     "funiculusL.bend": 8.82,
+     "mandibleL.open": 0,
+     "scapeR.yaw": -5.12,
+     "scapeR.pitch": 25.96,
+     "funiculusR.bend": -12.14,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 144,
+    "values": {
+     "scapeL.yaw": 22.58,
+     "scapeL.pitch": 26.41,
+     "funiculusL.bend": -14.27,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 1.42,
+     "scapeR.pitch": 18.71,
+     "funiculusR.bend": 4.64,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 156,
+    "values": {
+     "scapeL.yaw": 1.42,
+     "scapeL.pitch": 17.49,
+     "funiculusL.bend": 14.27,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 22.58,
+     "scapeR.pitch": 3.26,
+     "funiculusR.bend": 4.64,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 168,
+    "values": {
+     "scapeL.yaw": -5.12,
+     "scapeL.pitch": 3.07,
+     "funiculusL.bend": -8.82,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 29.12,
+     "scapeR.pitch": 13.75,
+     "funiculusR.bend": -12.14,
+     "mandibleR.open": 0
+    }
+   }
+  ]
+ }
+}

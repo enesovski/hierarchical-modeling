@@ -21,7 +21,8 @@ function addCorner(part, corner, v, vt, vn) {
     part.indices.push(index);
 }
 
-function parseObj(text) {
+// Exported for tools/make_animations.mjs, which reads the model in Node.
+export function parseObj(text) {
     const v = [], vt = [], vn = [];
     const parts = {};
     let part = null;

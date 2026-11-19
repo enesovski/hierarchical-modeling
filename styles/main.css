@@ -13,11 +13,19 @@ body {
     background: #1e222a;
 }
 
+/* 3D view on top, keyframe timeline below it. */
+#viewport {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 #glCanvas {
     display: block;
     flex: 1;
-    min-width: 0;
-    height: 100%;
+    min-height: 0;
+    width: 100%;
     touch-action: none;
 }
 
@@ -96,4 +104,153 @@ select {
     background: #2c323d;
     border: 1px solid #3b4250;
     border-radius: 4px;
+}
+
+
+/* ---- Timeline ---- */
+
+#timeline {
+    flex-shrink: 0;
+    padding: 6px 10px 8px;
+    background: #171a20;
+    border-top: 1px solid #2c313b;
+    user-select: none;
+}
+
+.tl-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.tl-toolbar button {
+    margin: 0;
+    min-width: 30px;
+}
+
+.tl-toolbar button.active {
+    background: #4a3a1c;
+    border-color: #ff9e1a;
+}
+
+.tl-toolbar input,
+.tl-toolbar select {
+    width: auto;
+    margin: 0;
+    padding: 3px 5px;
+    font: inherit;
+    color: inherit;
+    background: #2c323d;
+    border: 1px solid #3b4250;
+    border-radius: 4px;
+}
+
+.tl-name { width: 110px !important; }
+.tl-length { width: 64px !important; }
+
+.tl-frame {
+    min-width: 72px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.tl-sep {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: #3b4250;
+}
+
+.tl-check {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.tl-message {
+    color: #8b93a3;
+    font-size: 12px;
+}
+
+.tl-body {
+    position: relative;
+}
+
+.tl-row {
+    display: flex;
+    height: 18px;
+}
+
+.tl-label {
+    width: 150px;
+    flex-shrink: 0;
+    padding-right: 10px;
+    text-align: right;
+    font-size: 12px;
+    line-height: 18px;
+    color: #c3c9d4;
+    cursor: pointer;
+}
+
+.tl-row.selected .tl-label {
+    color: #ff9e1a;
+    font-weight: 600;
+}
+
+.tl-lane {
+    position: relative;
+    flex: 1;
+    margin-right: 8px;
+    border-bottom: 1px solid #2c313b;
+    cursor: pointer;
+}
+
+.tl-row.selected .tl-lane {
+    background: #222733;
+}
+
+.tl-ruler {
+    height: 20px;
+}
+
+.tl-ruler .tl-lane {
+    border-bottom-color: #3b4250;
+}
+
+.tl-tick {
+    position: absolute;
+    top: 2px;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #8b93a3;
+    pointer-events: none;
+}
+
+/* Keyframe: a rotated square centred on its frame. */
+.tl-key {
+    position: absolute;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    background: #f5c542;
+    border: 1px solid #8a6a12;
+    transform: translate(-50%, -50%) rotate(45deg);
+    cursor: ew-resize;
+}
+
+.tl-key.selected {
+    background: #ff9e1a;
+    border-color: #fff;
+}
+
+.tl-playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: #e25c4a;
+    pointer-events: none;
 }
