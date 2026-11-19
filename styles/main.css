@@ -1,0 +1,88 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    font: 13px/1.4 system-ui, sans-serif;
+    color: #d8dde6;
+    background: #1e222a;
+}
+
+#glCanvas {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    touch-action: none;
+}
+
+#panel {
+    width: 320px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 12px 14px;
+    background: #171a20;
+    border-left: 1px solid #2c313b;
+}
+
+.panel-section {
+    margin-bottom: 18px;
+}
+
+.panel-section h2 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+.hint {
+    margin: 0 0 8px;
+    color: #8b93a3;
+    font-size: 12px;
+}
+
+details {
+    border-top: 1px solid #2c313b;
+}
+
+summary {
+    padding: 6px 0;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.slider-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 40px;
+    align-items: center;
+    gap: 6px;
+    padding: 1px 0;
+}
+
+.slider-row input {
+    width: 100%;
+}
+
+.slider-row output {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+button {
+    margin-bottom: 8px;
+    padding: 4px 10px;
+    font: inherit;
+    color: inherit;
+    background: #2c323d;
+    border: 1px solid #3b4250;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #363d4a;
+}
