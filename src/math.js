@@ -1,14 +1,9 @@
-// Minimal 4x4 matrix / vec3 math for WebGL.
-// Matrices are Float32Array(16) in COLUMN-MAJOR order (what gl.uniformMatrix4fv expects):
-// element (row r, column c) lives at index c * 4 + r.
-
 export function identity() {
     const m = new Float32Array(16);
     m[0] = m[5] = m[10] = m[15] = 1;
     return m;
 }
 
-// Returns a * b (b is applied to a vertex first, then a).
 export function multiply(a, b) {
     const out = new Float32Array(16);
     for (let c = 0; c < 4; c++) {
@@ -21,7 +16,6 @@ export function multiply(a, b) {
     return out;
 }
 
-// multiplyAll(A, B, C) = A * B * C
 export function multiplyAll(...matrices) {
     return matrices.reduce((acc, m) => multiply(acc, m), identity());
 }
@@ -42,7 +36,6 @@ export function scaling(x, y, z) {
     return m;
 }
 
-// Rotations take radians and follow the right-hand rule.
 export function rotationX(rad) {
     const c = Math.cos(rad), s = Math.sin(rad);
     const m = identity();
@@ -75,9 +68,7 @@ export function transpose(a) {
     return out;
 }
 
-// General inverse by Gauss-Jordan elimination with partial pivoting.
 export function invert(a) {
-    // Work on rows: left[r][c] = a(r, c), right starts as identity.
     const left = [], right = [];
     for (let r = 0; r < 4; r++) {
         left.push([a[r], a[4 + r], a[8 + r], a[12 + r]]);
@@ -115,8 +106,6 @@ export function invert(a) {
     return out;
 }
 
-// Inverse-transpose of the model-view matrix: transforms normals correctly
-// even when parts are scaled non-uniformly (ellipsoids, rods).
 export function normalMatrix(modelView) {
     return transpose(invert(modelView));
 }
@@ -133,7 +122,7 @@ export function perspective(fovyRad, aspect, near, far) {
 }
 
 export function lookAt(eye, target, up) {
-    const z = normalize(subtract(eye, target)); // camera looks down its -Z
+    const z = normalize(subtract(eye, target));
     const x = normalize(cross(up, z));
     const y = cross(z, x);
     const m = identity();
@@ -146,7 +135,6 @@ export function lookAt(eye, target, up) {
     return m;
 }
 
-// Rotation by `rad` about a unit axis [x, y, z] (Rodrigues' formula).
 export function rotationAxis([x, y, z], rad) {
     const c = Math.cos(rad), s = Math.sin(rad), t = 1 - c;
     const m = identity();
@@ -156,7 +144,6 @@ export function rotationAxis([x, y, z], rad) {
     return m;
 }
 
-// Multiplies a point by m (w = 1).
 export function transformPoint(m, [x, y, z]) {
     return [
         m[0] * x + m[4] * y + m[8] * z + m[12],
@@ -165,7 +152,6 @@ export function transformPoint(m, [x, y, z]) {
     ];
 }
 
-// Multiplies a direction by the upper 3x3 of m (w = 0, so translation is ignored).
 export function transformDirection(m, [x, y, z]) {
     return [
         m[0] * x + m[4] * y + m[8] * z,
@@ -173,8 +159,6 @@ export function transformDirection(m, [x, y, z]) {
         m[2] * x + m[6] * y + m[10] * z,
     ];
 }
-
-// ---- vec3 helpers (plain arrays) ----
 
 export function subtract(a, b) {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];

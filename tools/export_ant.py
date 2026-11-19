@@ -1,19 +1,8 @@
-"""Exports the split ant in Ant.blend for the app.
-
-Usage (Blender's Python):
-    blender -b assets/models/Ant.blend --python tools/export_ant.py
-
-Writes next to the .blend:
-    ant.obj / ant.mtl   one object per part, rest pose, Y up, ant facing +Z
-    ant.rig.json        parent and joint pivot (= object origin) of every part
-Each mesh object is one scene-graph node; Blender parenting is the hierarchy.
-"""
 import json
 import bpy
 
 
 def to_app(v):
-    # Blender (Z up, ant faces -Y) -> app (Y up, ant faces +Z), as the OBJ export below.
     return [round(v.x, 5), round(v.z, 5), round(-v.y, 5)]
 
 

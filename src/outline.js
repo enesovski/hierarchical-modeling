@@ -1,17 +1,8 @@
-// Selection outline drawn around the selected part's silhouette.
-//   1. Mask pass: draw only the selected node's shapes in white into an
-//      off-screen texture (everything else stays black).
-//   2. Outline pass: a full-screen triangle; each pixel outside the mask that
-//      has a mask pixel within OUTLINE_WIDTH_PX gets the outline colour.
-// The outline therefore has the same pixel width at any zoom. Only the ground
-// (static shapes) can hide it: it stays visible where other insect parts are
-// in front of the selected one, but not through the ground.
-
 import * as m4 from "./math.js";
 import { createProgram, drawMesh } from "./gl-utils.js";
 import { drawHierarchy } from "./scene-graph.js";
 
-const OUTLINE_WIDTH_PX = 3;          // CSS pixels, scaled by devicePixelRatio
+const OUTLINE_WIDTH_PX = 3;
 const OUTLINE_COLOR = [1.0, 0.62, 0.1];
 
 const maskVertexSource = `#version 300 es
@@ -31,7 +22,6 @@ void main() {
 }
 `;
 
-// One triangle that covers the whole screen, built from gl_VertexID (no buffers).
 const outlineVertexSource = `#version 300 es
 void main() {
     vec2 corner = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
@@ -39,12 +29,10 @@ void main() {
 }
 `;
 
-// Samples the mask on rings around the pixel (16 directions x 3 radii) instead
-// of a full square, which is far cheaper and looks the same at this width.
 const outlineFragmentSource = `#version 300 es
 precision highp float;
 uniform sampler2D uMask;
-uniform float uWidth;     // device pixels
+uniform float uWidth;
 uniform vec3 uColor;
 out vec4 outColor;
 
@@ -59,7 +47,7 @@ bool inMask(ivec2 p) {
 
 void main() {
     ivec2 pixel = ivec2(gl_FragCoord.xy);
-    if (inMask(pixel)) discard;              // inside the part: leave it as rendered
+    if (inMask(pixel)) discard;
 
     float nearest = 1e9;
     for (int i = 0; i < DIRECTIONS; i++) {
@@ -87,9 +75,8 @@ export function createOutline(gl) {
         width: gl.getUniformLocation(outlineProgram, "uWidth"),
         color: gl.getUniformLocation(outlineProgram, "uColor"),
     };
-    const emptyVao = gl.createVertexArray(); // the full-screen triangle needs no attributes
+    const emptyVao = gl.createVertexArray();
 
-    // Mask texture + depth buffer (for the ground) + framebuffer, resized with the canvas.
     const maskTexture = gl.createTexture();
     const depthBuffer = gl.createRenderbuffer();
     const framebuffer = gl.createFramebuffer();
@@ -111,7 +98,6 @@ export function createOutline(gl) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
-    // Call after the scene is rendered. Does nothing when nothing is selected.
     function draw({ root, staticShapes, view, projection, selectedNode }) {
         if (!selectedNode) return;
         resize(gl.canvas.width, gl.canvas.height);
@@ -123,8 +109,6 @@ export function createOutline(gl) {
         gl.useProgram(maskProgram);
         gl.uniformMatrix4fv(maskUniforms.projection, false, projection);
 
-        // 1a. The ground goes into the depth buffer only (no colour), so it can
-        //     hide the selected part, e.g. when the camera looks from below.
         gl.colorMask(false, false, false, false);
         for (const shape of staticShapes) {
             gl.uniformMatrix4fv(maskUniforms.modelView, false, m4.multiply(view, shape.matrix));
@@ -132,15 +116,12 @@ export function createOutline(gl) {
         }
         gl.colorMask(true, true, true, true);
 
-        // 1b. Mask: only the selected node's shapes, depth-tested against the
-        //     ground. Other insect parts are not drawn, so they cannot cut holes.
         drawHierarchy(root, view, (shape, modelView, node) => {
             if (node !== selectedNode) return;
             gl.uniformMatrix4fv(maskUniforms.modelView, false, modelView);
             drawMesh(gl, shape.mesh);
         });
 
-        // 2. Outline over the rendered scene (a flat overlay, so no depth test).
         gl.disable(gl.DEPTH_TEST);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

@@ -25,7 +25,6 @@ if (!gl) {
     throw new Error("WebGL2 is not supported.");
 }
 
-// The ant: one OBJ object per body part, joint pivots from the rig file.
 const [antModel, antRig] = await Promise.all([
     loadObj("./assets/models/ant.obj"),
     fetch("./assets/models/ant.rig.json").then((response) => response.json()),
@@ -40,26 +39,24 @@ const renderer = createRenderer(gl, textures);
 const camera = new OrbitCamera();
 const outline = createOutline(gl);
 
-// Ground slab outside the hierarchy; its top face is at y = 0.
 const staticShapes = [
     {
         mesh: createMesh(gl, createBox()),
         matrix: m4.multiply(m4.translation(0, -0.05, 0), m4.scaling(30, 0.1, 30)),
         color: [0.55, 0.5, 0.4],
         texture: "ground",
-        uvScale: [8, 8],   // repeat the soil texture across the large slab
+        uvScale: [8, 8],
         specular: 0.05,
         shininess: 8,
     },
 ];
 
 const state = {
-    renderMode: 3,                          // index into RENDER_MODES (shaded texture)
-    light: { azimuth: 35, elevation: 55 },  // degrees, world space
+    renderMode: 3,
+    light: { azimuth: 35, elevation: 55 },
     selectedNode: null,
 };
 
-// Drag posing registers first so a click on a part is not also a camera drag.
 const picker = createPicker(gl, insect, staticShapes);
 const dragPosing = attachDragPosing(canvas, { picker, camera, root: insect, pose, state });
 attachOrbitControls(canvas, camera, { shouldStart: () => !dragPosing.isDragging() });
@@ -83,12 +80,11 @@ function resizeCanvas() {
 let lastTime = null;
 
 function frame(now) {
-    // Seconds since the last frame, capped so a background tab does not jump ahead.
     const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.1);
     lastTime = now;
 
     resizeCanvas();
-    player.update(dt);          // writes the animated pose before it is drawn
+    player.update(dt);
     timeline.sync();
     updateTransforms(insect, pose);
     posePanel.sync();
@@ -106,5 +102,4 @@ function frame(now) {
 
 requestAnimationFrame(frame);
 
-// Console handle for debugging.
 window.app = { pose, camera, state, insect, player };

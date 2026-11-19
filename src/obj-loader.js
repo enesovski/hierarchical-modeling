@@ -1,9 +1,3 @@
-// Minimal Wavefront OBJ/MTL loader.
-// Supports v, vt, vn, triangular or polygon f (fan-triangulated), o (one mesh
-// per object) and mtllib -> map_Kd (the diffuse texture).
-
-// OBJ indexes positions, UVs and normals separately; WebGL needs one index per
-// vertex, so every distinct "v/vt/vn" triple becomes its own vertex.
 function createPart() {
     return { positions: [], normals: [], uvs: [], indices: [], lookup: new Map() };
 }
@@ -21,7 +15,6 @@ function addCorner(part, corner, v, vt, vn) {
     part.indices.push(index);
 }
 
-// Exported for tools/make_animations.mjs, which reads the model in Node.
 export function parseObj(text) {
     const v = [], vt = [], vn = [];
     const parts = {};
@@ -54,7 +47,6 @@ async function fetchText(url) {
     return response.text();
 }
 
-// Returns { parts: { name: { positions, normals, uvs, indices } }, diffuseMap: url | null }.
 export async function loadObj(url) {
     const { parts, materialLibrary } = parseObj(await fetchText(url));
 

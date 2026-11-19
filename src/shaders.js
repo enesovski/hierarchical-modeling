@@ -1,11 +1,3 @@
-// GLSL ES 3.00 shaders: one program covers all four render modes.
-//   0 Color          uniform colour per part, unlit
-//   1 Texture        image texture per part, unlit
-//   2 Shading        uniform colour, smooth Blinn-Phong shading
-//   3 Shaded texture image texture, smooth Blinn-Phong shading
-// Lighting is computed per fragment from interpolated vertex normals, which is
-// what makes the shading smooth (no faceting across triangles).
-
 export const vertexShaderSource = `#version 300 es
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec3 aNormal;
@@ -13,10 +5,10 @@ layout(location = 2) in vec2 aTexCoord;
 
 uniform mat4 uModelView;
 uniform mat4 uProjection;
-uniform mat4 uNormalMatrix;   // inverse-transpose of uModelView
+uniform mat4 uNormalMatrix;
 
-out vec3 vNormal;     // view space
-out vec3 vViewPos;    // view space
+out vec3 vNormal;
+out vec3 vViewPos;
 out vec2 vTexCoord;
 
 void main() {
@@ -35,15 +27,15 @@ in vec3 vNormal;
 in vec3 vViewPos;
 in vec2 vTexCoord;
 
-uniform int uRenderMode;      // 0..3, see the table at the top of shaders.js
+uniform int uRenderMode;
 uniform vec3 uColor;
 uniform bool uHasTexture;
 uniform sampler2D uTexture;
-uniform vec2 uUvScale;        // > 1 repeats the texture (ground)
+uniform vec2 uUvScale;
 
-uniform vec3 uLightDir;       // view space, unit vector pointing towards the light
-uniform float uSpecular;      // specular strength of this part's material
-uniform float uShininess;     // Blinn-Phong exponent
+uniform vec3 uLightDir;
+uniform float uSpecular;
+uniform float uShininess;
 
 out vec4 outColor;
 
@@ -58,10 +50,10 @@ void main() {
     vec3 color = albedo;
 
     if (lit) {
-        vec3 n = normalize(vNormal);          // re-normalize after interpolation
+        vec3 n = normalize(vNormal);
         vec3 l = uLightDir;
-        vec3 v = normalize(-vViewPos);        // the eye is at the origin in view space
-        vec3 h = normalize(l + v);            // Blinn-Phong half vector
+        vec3 v = normalize(-vViewPos);
+        vec3 h = normalize(l + v);
 
         float diffuse = max(dot(n, l), 0.0);
         float specular = diffuse > 0.0 ? pow(max(dot(n, h), 0.0), uShininess) : 0.0;

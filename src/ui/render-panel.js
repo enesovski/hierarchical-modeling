@@ -1,6 +1,3 @@
-// Render mode menu and light direction sliders. Writes into `state`, which the
-// frame loop passes to the renderer.
-
 import { RENDER_MODES } from "../renderer.js";
 
 function addSlider(section, label, min, max, get, set) {

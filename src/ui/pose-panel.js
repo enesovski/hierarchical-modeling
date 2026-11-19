@@ -1,5 +1,3 @@
-// Posture sliders, generated from DOFS and grouped into collapsible sections.
-
 import { resetPose } from "../insect.js";
 
 function formatValue(value, step) {
@@ -55,8 +53,6 @@ export function createPosePanel(container, pose, dofs) {
 
     container.append(section);
 
-    // Call every frame so sliders follow pose changes made elsewhere
-    // (reset, picking, animation playback).
     function sync() {
         for (const { dof, input, output } of rows) {
             const value = pose[dof.key];

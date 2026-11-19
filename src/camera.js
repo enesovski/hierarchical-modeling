@@ -1,9 +1,7 @@
-// Orbit camera: the eye moves on a sphere around a target point.
-
 import * as m4 from "./math.js";
 
 const ROTATE_DEG_PER_PX = 0.4;
-const PAN_PER_PX = 0.0015;   // multiplied by distance, so panning feels the same at any zoom
+const PAN_PER_PX = 0.0015;
 const ZOOM_PER_WHEEL = 0.001;
 const MIN_DISTANCE = 2;
 const MAX_DISTANCE = 60;
@@ -18,8 +16,8 @@ export class OrbitCamera {
     reset() {
         this.target = [0, 0.8, 0];
         this.distance = 11;
-        this.yaw = 40;     // degrees around +Y
-        this.pitch = 22;   // degrees above the horizon
+        this.yaw = 40;
+        this.pitch = 22;
         this.fovy = 45;
     }
 
@@ -47,7 +45,6 @@ export class OrbitCamera {
         this.pitch = clamp(this.pitch + dyPx * ROTATE_DEG_PER_PX, -89, 89);
     }
 
-    // Moves the target in the camera's screen plane so the scene follows the mouse.
     pan(dxPx, dyPx) {
         const view = this.viewMatrix();
         const right = [view[0], view[4], view[8]];
@@ -64,8 +61,6 @@ export class OrbitCamera {
     }
 }
 
-// Left-drag: rotate. Right/middle-drag or Shift+left-drag: pan. Wheel: zoom.
-// shouldStart(event) lets another handler (e.g. picking) claim a click first.
 export function attachOrbitControls(canvas, camera, { shouldStart = () => true } = {}) {
     let drag = null;
 

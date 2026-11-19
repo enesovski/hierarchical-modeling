@@ -1,5 +1,3 @@
-// Shows the part picked with the mouse and how to pose it.
-
 export function createSelectionPanel(container, state) {
     const section = document.createElement("section");
     section.className = "panel-section";
@@ -14,7 +12,6 @@ export function createSelectionPanel(container, state) {
     container.append(section);
 
     let shown;
-    // Called every frame; only touches the DOM when the selection changes.
     function sync() {
         const node = state.selectedNode;
         if (node === shown) return;

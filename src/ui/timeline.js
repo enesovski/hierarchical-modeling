@@ -1,12 +1,3 @@
-// Keyframe timeline under the 3D view: transport buttons, a frame ruler and
-// one row (track) per body part with a diamond for every keyframe.
-//
-//   ruler / empty row   click or drag to move the playhead (scrub)
-//   diamond             click to jump to it, drag to retime it
-//   K / "Key"           key the selected part at the playhead
-//   Delete              remove the selected keyframe
-// Clicking a part in the 3D view selects its row.
-
 import {
     TRACKS, INTERPOLATIONS, createAnimation, keysOf, setKey, removeKey, moveKey,
     trackOfNode, animationToJson, parseAnimation,
@@ -29,12 +20,11 @@ function button(label, title, onClick) {
     b.title = title;
     b.addEventListener("click", () => {
         onClick();
-        b.blur();   // so Space toggles playback instead of pressing this button again
+        b.blur();
     });
     return b;
 }
 
-// A "nice" ruler step so the ruler shows roughly ten labels.
 function rulerStep(length) {
     return [1, 2, 5, 10, 15, 30, 60, 120, 300, 600].find((s) => length / s <= 12) ?? 1200;
 }
@@ -50,10 +40,9 @@ function downloadText(filename, text) {
 
 export function createTimeline(container, player, pose, state) {
     let selectedTrack = null;
-    let selectedKey = null;          // a key object inside selectedTrack
+    let selectedKey = null;
     let lastSelectedNode = null;
 
-    // ---- Toolbar ----
     const toolbar = el("div", "tl-toolbar");
     const playButton = button("▶", "Play (Space)", () => player.play());
     const pauseButton = button("❚❚", "Pause (Space)", () => player.pause());
@@ -101,7 +90,7 @@ export function createTimeline(container, player, pose, state) {
     fileInput.hidden = true;
     fileInput.addEventListener("change", async () => {
         const file = fileInput.files[0];
-        fileInput.value = "";   // allow loading the same file again
+        fileInput.value = "";
         if (!file) return;
         try {
             loadAnimation(parseAnimation(await file.text()), `Loaded "${file.name}".`);
@@ -132,14 +121,13 @@ export function createTimeline(container, player, pose, state) {
         fileInput, message
     );
 
-    // ---- Ruler + rows ----
     const body = el("div", "tl-body");
     const rulerRow = el("div", "tl-row tl-ruler");
     const rulerLane = el("div", "tl-lane");
     rulerRow.append(el("div", "tl-label"), rulerLane);
     body.append(rulerRow);
 
-    const rows = new Map();   // track -> { row, lane }
+    const rows = new Map();
     for (const track of TRACKS) {
         const row = el("div", "tl-row");
         const label = el("div", "tl-label", track);
@@ -150,7 +138,7 @@ export function createTimeline(container, player, pose, state) {
 
         label.addEventListener("click", () => select(track, null));
         lane.addEventListener("pointerdown", (e) => {
-            if (e.target !== lane) return;   // diamonds handle their own clicks
+            if (e.target !== lane) return;
             select(track, null);
             startScrub(e, lane);
         });
@@ -161,7 +149,6 @@ export function createTimeline(container, player, pose, state) {
     body.append(playhead);
     container.append(toolbar, body);
 
-    // ---- Helpers ----
     const frameAt = (lane, clientX) => {
         const rect = lane.getBoundingClientRect();
         const u = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
@@ -169,7 +156,6 @@ export function createTimeline(container, player, pose, state) {
     };
     const percent = (frame) => `${(100 * frame) / player.animation.length}%`;
 
-    // Pointer drag helper: calls onMove(clientX) until the button is released.
     function drag(e, target, onMove, onEnd = () => {}) {
         target.setPointerCapture(e.pointerId);
         const move = (ev) => onMove(ev.clientX);
@@ -246,8 +232,6 @@ export function createTimeline(container, player, pose, state) {
         }
     }
 
-    // ---- Drawing ----
-
     function makeDiamond(track, key) {
         const diamond = el("div", "tl-key");
         diamond.style.left = percent(key.frame);
@@ -259,7 +243,6 @@ export function createTimeline(container, player, pose, state) {
             select(track, key);
             player.seek(key.frame);
             const lane = rows.get(track).lane;
-            // Dragging retimes the key; it is re-sorted on release.
             drag(e, diamond, (x) => {
                 const frame = frameAt(lane, x);
                 if (frame === key.frame) return;
@@ -272,7 +255,6 @@ export function createTimeline(container, player, pose, state) {
         return diamond;
     }
 
-    // Rebuilds everything that depends on the animation (not on the playhead).
     function refresh() {
         const animation = player.animation;
         nameInput.value = animation.name;
@@ -295,7 +277,6 @@ export function createTimeline(container, player, pose, state) {
         }
     }
 
-    // Called every frame: playhead, frame counter, selection from the 3D view.
     function sync() {
         if (state.selectedNode !== lastSelectedNode) {
             lastSelectedNode = state.selectedNode;
@@ -307,7 +288,6 @@ export function createTimeline(container, player, pose, state) {
         playButton.classList.toggle("active", player.playing);
         pauseButton.classList.toggle("active", !player.playing);
 
-        // The playhead spans all rows, offset by the label column.
         const laneRect = rulerLane.getBoundingClientRect();
         const bodyRect = body.getBoundingClientRect();
         playhead.style.left = `${laneRect.left - bodyRect.left + (laneRect.width * player.frame) / length}px`;

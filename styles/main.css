@@ -13,7 +13,6 @@ body {
     background: #1e222a;
 }
 
-/* 3D view on top, keyframe timeline below it. */
 #viewport {
     flex: 1;
     min-width: 0;
@@ -106,8 +105,6 @@ select {
     border-radius: 4px;
 }
 
-
-/* ---- Timeline ---- */
 
 #timeline {
     flex-shrink: 0;
@@ -228,7 +225,6 @@ select {
     pointer-events: none;
 }
 
-/* Keyframe: a rotated square centred on its frame. */
 .tl-key {
     position: absolute;
     top: 50%;

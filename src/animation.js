@@ -1,13 +1,3 @@
-// Keyframe animation of the pose object, with one track per body part.
-//
-// An animation is { name, fps, length, loop, interpolation, tracks }:
-//   length  number of frames (the timeline runs 0..length)
-//   tracks  { [track]: [{ frame, values }] }, sorted by frame
-// A track is one DOF group from src/insect.js ("Head", "Leg L1", ...), i.e. a
-// row on the timeline; `values` is a snapshot { "node.dof": degrees } of that
-// group's DOFs. Each track is interpolated between its own keyframes and
-// written into the shared `pose`; tracks without keyframes leave the pose alone.
-
 import { DOFS } from "./insect.js";
 
 export const FPS = 30;
@@ -25,7 +15,6 @@ const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 const round2 = (v) => Math.round(v * 100) / 100;
 const mod = (a, n) => ((a % n) + n) % n;
 
-// The track that holds a scene-graph node's DOFs (the root holds "Body").
 export function trackOfNode(node) {
     return DOFS.find((dof) => dof.key === node?.dofs[0])?.group ?? null;
 }
@@ -36,7 +25,6 @@ export function createAnimation(name = "untitled") {
 
 export const keysOf = (animation, track) => animation.tracks[track] ?? [];
 
-// Stores the current pose of one track at `frame`; a key already there is replaced.
 export function setKey(animation, track, frame, pose) {
     const values = {};
     for (const { key } of DOFS_OF_TRACK.get(track)) values[key] = round2(pose[key]);
@@ -59,7 +47,6 @@ export function removeKey(animation, track, key) {
     if (keys.length === 0) delete animation.tracks[track];
 }
 
-// Moves a key to another frame; a different key already there is dropped.
 export function moveKey(animation, track, key, frame) {
     const keys = keysOf(animation, track);
     const other = keys.find((k) => k !== key && k.frame === frame);
@@ -68,8 +55,6 @@ export function moveKey(animation, track, key, frame) {
     keys.sort((a, b) => a.frame - b.frame);
 }
 
-// Catmull-Rom spline through p1 (u = 0) and p2 (u = 1); p0 and p3 set the
-// tangents, so the motion flows through keyframes instead of stopping at them.
 function catmullRom(p0, p1, p2, p3, u) {
     const u2 = u * u, u3 = u2 * u;
     return 0.5 * (
@@ -80,13 +65,11 @@ function catmullRom(p0, p1, p2, p3, u) {
     );
 }
 
-// Finds the segment around `frame`: keys a -> b, their neighbours, and u in [0, 1].
-// A looping track is periodic: after its last key it blends back into its first.
 function findSegment(keys, frame, loop, length) {
     const n = keys.length;
     if (loop) {
         const first = keys[0].frame;
-        const t = first + mod(frame - first, length);   // fold into one period
+        const t = first + mod(frame - first, length);
         let i = n - 1;
         while (keys[i].frame > t) i--;
         const next = (i + 1) % n;
@@ -97,7 +80,6 @@ function findSegment(keys, frame, loop, length) {
             u: end > start ? (t - start) / (end - start) : 0,
         };
     }
-    // Before the first / after the last key: hold it (all four points equal).
     const hold = frame <= keys[0].frame ? keys[0] : frame >= keys[n - 1].frame ? keys[n - 1] : null;
     if (hold) return { before: hold, a: hold, b: hold, after: hold, u: 0 };
     let i = 0;
@@ -108,24 +90,22 @@ function findSegment(keys, frame, loop, length) {
     };
 }
 
-// Writes the animation's pose at `frame` (may be fractional) into `pose`.
 export function samplePose(animation, frame, pose) {
     for (const [track, keys] of Object.entries(animation.tracks)) {
         if (keys.length === 0) continue;
         const { before, a, b, after, u } = findSegment(keys, frame, animation.loop, animation.length);
-        const eased = animation.interpolation === "ease" ? u * u * (3 - 2 * u) : u;   // smoothstep
+        const eased = animation.interpolation === "ease" ? u * u * (3 - 2 * u) : u;
 
         for (const { key, min, max } of DOFS_OF_TRACK.get(track)) {
             const p1 = a.values[key] ?? 0, p2 = b.values[key] ?? 0;
             const value = animation.interpolation === "smooth"
                 ? catmullRom(before.values[key] ?? 0, p1, p2, after.values[key] ?? 0, u)
                 : p1 + (p2 - p1) * eased;
-            pose[key] = clamp(value, min, max);   // the spline may overshoot a limit
+            pose[key] = clamp(value, min, max);
         }
     }
 }
 
-// Plays an animation into `pose`. `frame` is fractional while playing.
 export class AnimationPlayer {
     constructor(pose) {
         this.pose = pose;
@@ -141,7 +121,7 @@ export class AnimationPlayer {
     }
 
     play() {
-        if (this.frame >= this.animation.length) this.frame = 0;   // replay a finished animation
+        if (this.frame >= this.animation.length) this.frame = 0;
         this.playing = true;
     }
 
@@ -154,7 +134,6 @@ export class AnimationPlayer {
         this.seek(0);
     }
 
-    // Jumps to `frame` and shows that pose (timeline scrubbing, clicking a key).
     seek(frame) {
         this.frame = clamp(frame, 0, this.animation.length);
         samplePose(this.animation, this.frame, this.pose);
@@ -176,16 +155,10 @@ export class AnimationPlayer {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Save / load as JSON
-// ---------------------------------------------------------------------------
-
 export function animationToJson(animation) {
     return JSON.stringify({ version: FILE_VERSION, ...animation }, null, 1);
 }
 
-// Parses and validates a saved animation. Unknown tracks and pose keys are
-// dropped and values are clamped, so a hand-edited file cannot break the model.
 export function parseAnimation(text) {
     const data = JSON.parse(text);
     if (!data || typeof data.tracks !== "object") {

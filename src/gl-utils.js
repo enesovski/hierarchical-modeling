@@ -1,6 +1,3 @@
-// WebGL2 helpers: shader compilation and mesh upload.
-
-// Fixed attribute locations, matched by layout(location = N) in the vertex shader.
 export const ATTRIB = { position: 0, normal: 1, texCoord: 2 };
 
 function compileShader(gl, type, source) {
@@ -34,8 +31,6 @@ function uploadAttribute(gl, location, data, size) {
     gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
 }
 
-// Uploads a mesh { positions, normals, uvs, indices } (flat number arrays) into a VAO.
-// Primitives and (later) OBJ files both produce this format.
 export function createMesh(gl, { positions, normals, uvs, indices }) {
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -44,7 +39,6 @@ export function createMesh(gl, { positions, normals, uvs, indices }) {
     uploadAttribute(gl, ATTRIB.normal, normals, 3);
     uploadAttribute(gl, ATTRIB.texCoord, uvs, 2);
 
-    // 16-bit indices are enough for primitives; large OBJ meshes need 32-bit.
     const vertexCount = positions.length / 3;
     const use32 = vertexCount > 65535;
     const indexBuffer = gl.createBuffer();

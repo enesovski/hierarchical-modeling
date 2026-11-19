@@ -1,15 +1,5 @@
-// Unit primitives centred at the origin, each 1 unit across, so a part's
-// size is simply the scale applied to it:
-//   box:      1 x 1 x 1 cube
-//   sphere:   diameter 1
-//   cylinder: diameter 1, height 1 along the Y axis
-// Each returns { positions, normals, uvs, indices } with smooth normals and UVs,
-// ready for lighting and texturing.
-
 export function createBox() {
     const positions = [], normals = [], uvs = [], indices = [];
-    // For every face: outward normal n, and in-face axes u, v with u x v = n
-    // so the triangles are counter-clockwise when seen from outside.
     const faces = [
         { n: [1, 0, 0], u: [0, 0, -1], v: [0, 1, 0] },
         { n: [-1, 0, 0], u: [0, 0, 1], v: [0, 1, 0] },
@@ -38,7 +28,7 @@ export function createSphere(latitudeBands = 24, longitudeBands = 32) {
     const positions = [], normals = [], uvs = [], indices = [];
 
     for (let lat = 0; lat <= latitudeBands; lat++) {
-        const theta = (lat / latitudeBands) * Math.PI; // 0 at +Y pole, PI at -Y pole
+        const theta = (lat / latitudeBands) * Math.PI;
         const sinT = Math.sin(theta), cosT = Math.cos(theta);
         for (let lon = 0; lon <= longitudeBands; lon++) {
             const phi = (lon / longitudeBands) * 2 * Math.PI;
@@ -54,8 +44,8 @@ export function createSphere(latitudeBands = 24, longitudeBands = 32) {
     const row = longitudeBands + 1;
     for (let lat = 0; lat < latitudeBands; lat++) {
         for (let lon = 0; lon < longitudeBands; lon++) {
-            const a = lat * row + lon; // upper-left of the quad
-            const b = a + row;         // lower-left
+            const a = lat * row + lon;
+            const b = a + row;
             indices.push(a, b, a + 1, b, b + 1, a + 1);
         }
     }
@@ -65,7 +55,6 @@ export function createSphere(latitudeBands = 24, longitudeBands = 32) {
 export function createCylinder(segments = 24) {
     const positions = [], normals = [], uvs = [], indices = [];
 
-    // Side wall: two rings (bottom and top) with radial normals.
     for (let i = 0; i <= segments; i++) {
         const phi = (i / segments) * 2 * Math.PI;
         const x = Math.sin(phi), z = Math.cos(phi);
@@ -76,11 +65,10 @@ export function createCylinder(segments = 24) {
         }
     }
     for (let i = 0; i < segments; i++) {
-        const a = i * 2; // bottom of this column; a + 1 is its top
+        const a = i * 2;
         indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
     }
 
-    // Caps: a centre vertex plus their own ring so the normals stay flat (+Y / -Y).
     for (const y of [-0.5, 0.5]) {
         const ny = Math.sign(y);
         const center = positions.length / 3;

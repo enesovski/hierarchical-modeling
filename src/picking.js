@@ -1,7 +1,3 @@
-// Mouse picking with an off-screen ID-colour pass.
-// Every node is drawn in a unique flat colour (its id) into a framebuffer that
-// is never shown; reading the pixel under the cursor tells which part was hit.
-
 import * as m4 from "./math.js";
 import { createProgram, drawMesh } from "./gl-utils.js";
 import { drawHierarchy, forEachNode } from "./scene-graph.js";
@@ -24,7 +20,6 @@ void main() {
 }
 `;
 
-// id 0 means "nothing" (background or ground); nodes start at 1.
 function idToColor(id) {
     return [(id & 255) / 255, ((id >> 8) & 255) / 255, ((id >> 16) & 255) / 255];
 }
@@ -41,14 +36,13 @@ export function createPicker(gl, root, staticShapes) {
         idColor: gl.getUniformLocation(program, "uIdColor"),
     };
 
-    const nodes = [null]; // nodes[id]
+    const nodes = [null];
     const idOf = new Map();
     forEachNode(root, (node) => {
         idOf.set(node, nodes.length);
         nodes.push(node);
     });
 
-    // Framebuffer with a colour and a depth attachment, so nearer parts win.
     const framebuffer = gl.createFramebuffer();
     const colorBuffer = gl.createRenderbuffer();
     const depthBuffer = gl.createRenderbuffer();
@@ -73,8 +67,6 @@ export function createPicker(gl, root, staticShapes) {
         drawMesh(gl, shape.mesh);
     }
 
-    // (u, v): cursor position in 0..1 from the canvas' top-left corner.
-    // Returns the node under the cursor, or null. Transforms must be up to date.
     function pick(view, projection, u, v) {
         resize(gl.canvas.width, gl.canvas.height);
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -85,7 +77,6 @@ export function createPicker(gl, root, staticShapes) {
         gl.useProgram(program);
         gl.uniformMatrix4fv(uniforms.projection, false, projection);
 
-        // The ground is drawn as "nothing" so it still hides parts behind it.
         for (const shape of staticShapes) {
             drawWithId(shape, m4.multiply(view, shape.matrix), 0);
         }
@@ -93,7 +84,6 @@ export function createPicker(gl, root, staticShapes) {
             drawWithId(shape, modelView, idOf.get(node));
         });
 
-        // WebGL's pixel rows start at the bottom, mouse rows at the top.
         const x = Math.min(Math.floor(u * width), width - 1);
         const y = Math.min(Math.floor((1 - v) * height), height - 1);
         const pixel = new Uint8Array(4);
