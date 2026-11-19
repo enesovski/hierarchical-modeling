@@ -43,7 +43,7 @@ Each branch owns its files. Both will touch `src/main.js` (a few wiring lines ea
 
 | | Branch `rendering` (Phases 3 + 6) | Branch `interaction` (Phases 4 + 5) |
 |---|---|---|
-| Owns | `shaders.js`, `renderer.js`, `insect.js` shape definitions, new `textures.js`, `obj-loader.js`, `ui/render-panel.js`, `assets/textures/`, `assets/models/` | new `animation.js`, `picking.js`, `drag-pose.js`, `ui/animation-panel.js`, `ui/selection-panel.js`, `assets/animations/` |
+| Owns | `shaders.js`, `renderer.js`, `insect.js` shape definitions, new `textures.js`, `obj-loader.js`, `ui/render-panel.js`, `assets/textures/`, `assets/models/` | new `animation.js`, `picking.js`, `drag-pose.js`, `ui/timeline.js`, `ui/selection-panel.js`, `assets/animations/` |
 | Hooks already in the baseline | `renderer.render(scene)`; shapes are `{ mesh, matrix, color }` | `drawHierarchy(root, view, drawShape)` for the picking pass; `state.selectedNode` (the renderer already highlights it); `node.dofs`; `attachOrbitControls(..., { shouldStart })` so a click on a part skips the camera |
 
 Shared contract, which neither branch changes alone: the `DOFS` keys and `pose` format in `insect.js` (saved animations depend on them) and the `createMesh` format.
