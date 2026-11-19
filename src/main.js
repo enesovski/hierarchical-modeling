@@ -5,8 +5,12 @@ import { updateTransforms } from "./scene-graph.js";
 import { DOFS, buildInsect, createDefaultPose } from "./insect.js";
 import { createRenderer } from "./renderer.js";
 import { OrbitCamera, attachOrbitControls } from "./camera.js";
+import { createPicker } from "./picking.js";
+import { attachDragPosing } from "./drag-pose.js";
+import { createOutline } from "./outline.js";
 import { createPosePanel } from "./ui/pose-panel.js";
 import { createCameraPanel } from "./ui/camera-panel.js";
+import { createSelectionPanel } from "./ui/selection-panel.js";
 
 const canvas = document.getElementById("glCanvas");
 const panel = document.getElementById("panel");
@@ -26,6 +30,7 @@ const insect = buildInsect(meshes);
 const pose = createDefaultPose();
 const renderer = createRenderer(gl);
 const camera = new OrbitCamera();
+const outline = createOutline(gl);
 
 // Ground slab outside the hierarchy; its top face is at y = 0.
 const staticShapes = [
@@ -41,8 +46,12 @@ const state = {
     selectedNode: null,
 };
 
-attachOrbitControls(canvas, camera);
+// Drag posing registers first so a click on a part is not also a camera drag.
+const picker = createPicker(gl, insect, staticShapes);
+const dragPosing = attachDragPosing(canvas, { picker, camera, root: insect, pose, state });
+attachOrbitControls(canvas, camera, { shouldStart: () => !dragPosing.isDragging() });
 createCameraPanel(panel, camera);
+const selectionPanel = createSelectionPanel(panel, state);
 const posePanel = createPosePanel(panel, pose, DOFS);
 
 window.addEventListener("keydown", (e) => {
@@ -64,15 +73,12 @@ function frame() {
     resizeCanvas();
     updateTransforms(insect, pose);
     posePanel.sync();
+    selectionPanel.sync();
 
-    renderer.render({
-        root: insect,
-        staticShapes,
-        view: camera.viewMatrix(),
-        projection: camera.projectionMatrix(canvas.width / canvas.height),
-        lighting: state.lighting,
-        selectedNode: state.selectedNode,
-    });
+    const view = camera.viewMatrix();
+    const projection = camera.projectionMatrix(canvas.width / canvas.height);
+    renderer.render({ root: insect, staticShapes, view, projection, lighting: state.lighting });
+    outline.draw({ root: insect, staticShapes, view, projection, selectedNode: state.selectedNode });
     requestAnimationFrame(frame);
 }
 

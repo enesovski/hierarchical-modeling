@@ -5,8 +5,6 @@ import { createProgram, drawMesh } from "./gl-utils.js";
 import { drawHierarchy } from "./scene-graph.js";
 import { vertexShaderSource, fragmentShaderSource } from "./shaders.js";
 
-const HIGHLIGHT_BOOST = 0.25;
-
 export function createRenderer(gl) {
     const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
     const uniforms = {
@@ -19,14 +17,15 @@ export function createRenderer(gl) {
 
     gl.enable(gl.DEPTH_TEST);
 
-    function drawShape(shape, modelView, color = shape.color) {
+    function drawShape(shape, modelView) {
         gl.uniformMatrix4fv(uniforms.modelView, false, modelView);
         gl.uniformMatrix4fv(uniforms.normalMatrix, false, m4.normalMatrix(modelView));
-        gl.uniform3fv(uniforms.color, color);
+        gl.uniform3fv(uniforms.color, shape.color);
         drawMesh(gl, shape.mesh);
     }
 
-    // scene: { root, staticShapes, view, projection, lighting, selectedNode }
+    // scene: { root, staticShapes, view, projection, lighting }
+    // (the selected part is marked afterwards by outline.js)
     function render(scene) {
         gl.clearColor(0.12, 0.14, 0.18, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -38,12 +37,7 @@ export function createRenderer(gl) {
             drawShape(shape, m4.multiply(scene.view, shape.matrix));
         }
 
-        drawHierarchy(scene.root, scene.view, (shape, modelView, node) => {
-            const color = node === scene.selectedNode
-                ? shape.color.map((c) => Math.min(c + HIGHLIGHT_BOOST, 1))
-                : shape.color;
-            drawShape(shape, modelView, color);
-        });
+        drawHierarchy(scene.root, scene.view, (shape, modelView) => drawShape(shape, modelView));
     }
 
     return { render };
