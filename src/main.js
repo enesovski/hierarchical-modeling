@@ -14,7 +14,6 @@ import { AnimationPlayer } from "./animation.js";
 import { createPosePanel } from "./ui/pose-panel.js";
 import { createCameraPanel } from "./ui/camera-panel.js";
 import { createRenderPanel } from "./ui/render-panel.js";
-import { createSelectionPanel } from "./ui/selection-panel.js";
 import { createTimeline } from "./ui/timeline.js";
 
 const canvas = document.getElementById("glCanvas");
@@ -62,7 +61,6 @@ const dragPosing = attachDragPosing(canvas, { picker, camera, root: insect, pose
 attachOrbitControls(canvas, camera, { shouldStart: () => !dragPosing.isDragging() });
 createCameraPanel(panel, camera);
 createRenderPanel(panel, state);
-const selectionPanel = createSelectionPanel(panel, state);
 const timeline = createTimeline(document.getElementById("timeline"), player, pose, state);
 const posePanel = createPosePanel(panel, pose, DOFS);
 
@@ -84,11 +82,10 @@ function frame(now) {
     lastTime = now;
 
     resizeCanvas();
-    player.update(dt);
+    player.update(dt); //oynayan animationda açıları pose a yazma
     timeline.sync();
-    updateTransforms(insect, pose);
+    updateTransforms(insect, pose);  //posedan her eklemin matrisini hesaplama
     posePanel.sync();
-    selectionPanel.sync();
 
     const view = camera.viewMatrix();
     const projection = camera.projectionMatrix(canvas.width / canvas.height);

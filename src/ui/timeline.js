@@ -304,6 +304,5 @@ export function createTimeline(container, player, pose, state) {
     });
 
     refresh();
-    show("Pose a part, move the playhead, press K to key it.");
     return { sync };
 }
