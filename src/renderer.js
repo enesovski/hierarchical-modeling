@@ -38,7 +38,7 @@ export function createRenderer(gl, textures) {
     }
 
     function render(scene) {
-        gl.clearColor(0.12, 0.14, 0.18, 1.0);
+        gl.clearColor(0.70, 0.82, 0.90, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(program);
         gl.uniformMatrix4fv(uniforms.uProjection, false, scene.projection);

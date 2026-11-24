@@ -1,0 +1,218 @@
+{
+ "version": 2,
+ "name": "sa",
+ "fps": 30,
+ "length": 120,
+ "loop": true,
+ "interpolation": "smooth",
+ "tracks": {
+  "Body": [
+   {
+    "frame": 20,
+    "values": {
+     "global.x": 0,
+     "global.y": 0,
+     "global.z": 0,
+     "global.yaw": 0,
+     "global.pitch": 0,
+     "global.roll": 0
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "global.x": 0,
+     "global.y": 0,
+     "global.z": 0,
+     "global.yaw": 0,
+     "global.pitch": 0,
+     "global.roll": 0
+    }
+   }
+  ],
+  "Head": [
+   {
+    "frame": 20,
+    "values": {
+     "head.yaw": 25.01,
+     "head.pitch": 19.12
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "head.yaw": 25.01,
+     "head.pitch": 19.12
+    }
+   }
+  ],
+  "Antennae & mandibles": [
+   {
+    "frame": 20,
+    "values": {
+     "scapeL.yaw": 0,
+     "scapeL.pitch": 8,
+     "funiculusL.bend": 0,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 0,
+     "scapeR.pitch": 8,
+     "funiculusR.bend": 0,
+     "mandibleR.open": 0
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "scapeL.yaw": 0,
+     "scapeL.pitch": 8,
+     "funiculusL.bend": 0,
+     "mandibleL.open": 0,
+     "scapeR.yaw": 0,
+     "scapeR.pitch": 8,
+     "funiculusR.bend": 0,
+     "mandibleR.open": 0
+    }
+   }
+  ],
+  "Abdomen": [
+   {
+    "frame": 20,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 30,
+     "gaster.pitch": 32.31
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "petiole.yaw": 0,
+     "petiole.pitch": 0,
+     "gaster.yaw": 30,
+     "gaster.pitch": 32.31
+    }
+   }
+  ],
+  "Leg L1": [
+   {
+    "frame": 20,
+    "values": {
+     "femurL1.swing": -42.31,
+     "femurL1.lift": -4.96,
+     "tibiaL1.bend": -30.88,
+     "tarsusL1.bend": -7.64
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "femurL1.swing": -42.31,
+     "femurL1.lift": -4.96,
+     "tibiaL1.bend": -30.88,
+     "tarsusL1.bend": -7.64
+    }
+   }
+  ],
+  "Leg L2": [
+   {
+    "frame": 20,
+    "values": {
+     "femurL2.swing": -4.87,
+     "femurL2.lift": -3.95,
+     "tibiaL2.bend": -6.24,
+     "tarsusL2.bend": -2.51
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "femurL2.swing": -4.87,
+     "femurL2.lift": -3.95,
+     "tibiaL2.bend": -6.24,
+     "tarsusL2.bend": -2.51
+    }
+   }
+  ],
+  "Leg L3": [
+   {
+    "frame": 20,
+    "values": {
+     "femurL3.swing": 2.83,
+     "femurL3.lift": 7.08,
+     "tibiaL3.bend": 10.47,
+     "tarsusL3.bend": 3.63
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "femurL3.swing": -15.3,
+     "femurL3.lift": -1.89,
+     "tibiaL3.bend": 10.47,
+     "tarsusL3.bend": 3.63
+    }
+   }
+  ],
+  "Leg R1": [
+   {
+    "frame": 20,
+    "values": {
+     "femurR1.swing": 4.87,
+     "femurR1.lift": 8.7,
+     "tibiaR1.bend": 12.59,
+     "tarsusR1.bend": 11.01
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "femurR1.swing": -11.65,
+     "femurR1.lift": 31.16,
+     "tibiaR1.bend": 12.59,
+     "tarsusR1.bend": 11.01
+    }
+   }
+  ],
+  "Leg R2": [
+   {
+    "frame": 20,
+    "values": {
+     "femurR2.swing": 5.97,
+     "femurR2.lift": 2.73,
+     "tibiaR2.bend": 4.3,
+     "tarsusR2.bend": 2.24
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "femurR2.swing": -35,
+     "femurR2.lift": 2.33,
+     "tibiaR2.bend": 4.3,
+     "tarsusR2.bend": 2.24
+    }
+   }
+  ],
+  "Leg R3": [
+   {
+    "frame": 20,
+    "values": {
+     "femurR3.swing": -2.49,
+     "femurR3.lift": -9.02,
+     "tibiaR3.bend": -14.57,
+     "tarsusR3.bend": -2.01
+    }
+   },
+   {
+    "frame": 40,
+    "values": {
+     "femurR3.swing": -2.49,
+     "femurR3.lift": -9.02,
+     "tibiaR3.bend": -14.57,
+     "tarsusR3.bend": -2.01
+    }
+   }
+  ]
+ }
+}
