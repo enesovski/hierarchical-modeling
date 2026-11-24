@@ -4,13 +4,12 @@ import * as m4 from "../src/math.js";
 import { DOFS, buildInsect, createDefaultPose } from "../src/insect.js";
 import { drawHierarchy, updateTransforms } from "../src/scene-graph.js";
 import { parseObj } from "../src/obj-loader.js";
-import { FPS, TRACKS, createAnimation, setKey, animationToJson } from "../src/animation.js";
+import { TRACKS, createAnimation, setKey, samplePose, animationToJson } from "../src/animation.js";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT_DIR = `${ROOT}assets/animations/`;
 const DOF_BY_KEY = new Map(DOFS.map((dof) => [dof.key, dof]));
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
-const lerp = (a, b, u) => a.map((value, i) => value + (b[i] - value) * u);
 
 function save(file, animation) {
     mkdirSync(OUT_DIR, { recursive: true });
@@ -102,77 +101,62 @@ function solveLeg(pose, leg, target) {
     }
 }
 
-const CYCLE = 1.0;
-const STEP_HEIGHT = 0.45;
-const FRAMES_PER_KEY = 3;
+const CYCLE_FRAMES = 40;
+const KEY_EVERY = 5;
+const STRIDE = 0.6;
+const STEP_HEIGHT = 0.3;
 const TRIPOD_OFFSET = { L1: 0, R2: 0, L3: 0, R1: 0.5, L2: 0.5, R3: 0.5 };
+const restFeet = footPositions(createDefaultPose());
 
-const PATH = [
-    [4, { z: -3, yaw: 0 }, { z: 3, yaw: 0 }],
-    [3, { z: 3, yaw: 0 }, { z: 3, yaw: 180 }],
-    [4, { z: 3, yaw: 180 }, { z: -3, yaw: 180 }],
-    [3, { z: -3, yaw: 180 }, { z: -3, yaw: 0 }],
-];
-const WALK_DURATION = PATH.reduce((sum, [seconds]) => sum + seconds, 0);
-
-function bodyAt(time) {
-    let t = ((time % WALK_DURATION) + WALK_DURATION) % WALK_DURATION;
-    for (const [seconds, a, b] of PATH) {
-        if (t <= seconds) {
-            const u = t / seconds;
-            return { "global.z": a.z + (b.z - a.z) * u, "global.yaw": a.yaw + (b.yaw - a.yaw) * u };
-        }
-        t -= seconds;
-    }
-}
-
-function homeAt(time, leg) {
-    return footPositions({ ...createDefaultPose(), ...bodyAt(time) })[leg];
-}
-
-function footTarget(time, leg) {
-    const phase = (((time / CYCLE + TRIPOD_OFFSET[leg]) % 1) + 1) % 1;
+function footTarget(frame, leg) {
+    const phase = (((frame / CYCLE_FRAMES + TRIPOD_OFFSET[leg]) % 1) + 1) % 1;
+    const p = [...restFeet[leg]];
     if (phase < 0.5) {
-        const touchdown = time - phase * CYCLE;
-        return homeAt(touchdown + CYCLE / 4, leg);
+        p[2] += STRIDE * (0.5 - phase / 0.5);
+    } else {
+        const s = (phase - 0.5) / 0.5;
+        p[2] += STRIDE * (s * s * (3 - 2 * s) - 0.5);
+        p[1] += STEP_HEIGHT * Math.sin(Math.PI * s);
     }
-    const liftoff = time - (phase - 0.5) * CYCLE;
-    const from = homeAt(liftoff - CYCLE / 4, leg);
-    const to = homeAt(liftoff + CYCLE / 2 + CYCLE / 4, leg);
-    const s = (phase - 0.5) / 0.5;
-    const p = lerp(from, to, s * s * (3 - 2 * s));
-    p[1] += STEP_HEIGHT * Math.sin(Math.PI * s);
     return p;
+}
+
+function walkPoseAt(frame, pose) {
+    const wave = Math.sin((2 * Math.PI * frame) / CYCLE_FRAMES);
+    pose["global.y"] = 0.03 * (1 - Math.cos((4 * Math.PI * frame) / CYCLE_FRAMES)) / 2;
+    pose["global.roll"] = 2 * wave;
+    pose["gaster.yaw"] = 5 * wave;
+    pose["scapeL.pitch"] = 8 + 6 * wave;
+    pose["scapeR.pitch"] = 8 - 6 * wave;
+    for (const leg of LEGS) solveLeg(pose, leg, footTarget(frame, leg));
 }
 
 function makeWalk() {
     const animation = createAnimation("walk");
-    animation.length = WALK_DURATION * FPS;
+    animation.length = CYCLE_FRAMES;
     const tracks = TRACKS.filter((track) => track !== "Head");
     const pose = createDefaultPose();
-    const worstMiss = Object.fromEntries(LEGS.map((leg) => [leg, 0]));
 
     for (const record of [false, true]) {
-        for (let frame = 0; frame < animation.length; frame += FRAMES_PER_KEY) {
-            const time = frame / FPS;
-            Object.assign(pose, bodyAt(time));
-            for (const leg of LEGS) solveLeg(pose, leg, footTarget(time, leg));
-
-            const wave = Math.sin((2 * Math.PI * time) / CYCLE);
-            pose["gaster.yaw"] = 4 * wave;
-            pose["scapeL.pitch"] = 8 + 6 * wave;
-            pose["scapeR.pitch"] = 8 - 6 * wave;
-
-            if (!record) continue;
-            keyTracks(animation, tracks, frame, pose);
-            const feet = footPositions(pose);
-            for (const leg of LEGS) {
-                const miss = Math.hypot(...m4.subtract(feet[leg], footTarget(time, leg)));
-                worstMiss[leg] = Math.max(worstMiss[leg], miss);
-            }
+        for (let frame = 0; frame < CYCLE_FRAMES; frame += KEY_EVERY) {
+            walkPoseAt(frame, pose);
+            if (record) keyTracks(animation, tracks, frame, pose);
         }
     }
-    console.log("walk: worst foot miss per leg", Object.entries(worstMiss).map(([l, d]) => `${l} ${d.toFixed(2)}`).join(", "));
+
+    const worstMiss = Object.fromEntries(LEGS.map((leg) => [leg, 0]));
+    let worstSink = 0;
+    const played = createDefaultPose();
+    for (let frame = 0; frame < CYCLE_FRAMES; frame += 0.25) {
+        samplePose(animation, frame, played);
+        const feet = footPositions(played);
+        for (const leg of LEGS) {
+            worstMiss[leg] = Math.max(worstMiss[leg], Math.hypot(...m4.subtract(feet[leg], footTarget(frame, leg))));
+            worstSink = Math.max(worstSink, restFeet[leg][1] - feet[leg][1]);
+        }
+    }
+    console.log("walk: worst foot miss per leg", Object.entries(worstMiss).map(([l, d]) => `${l} ${d.toFixed(3)}`).join(", "),
+        `| worst sink below ground ${worstSink.toFixed(3)}`);
     return animation;
 }
 

@@ -125,7 +125,7 @@ assets/
   models/ant.obj        Karıncanın 3D şekli (28 parça), ant.mtl doku bilgisi
   models/ant.rig.json   Hangi parça hangisine bağlı ve eklem noktaları
   models/Ant.blend      Blender kaynak dosyası
-  models/gltf_embedded_0.png   Karıncanın doku resmi
+  models/ant_diffuse.png       Karıncanın doku resmi
   textures/ground.png   Zemin dokusu
   animations/*.json     Hazır animasyonlar (walk, looking-around)
 tools/
@@ -472,7 +472,7 @@ Seçili parçanın etrafına 3 piksel kalınlığında turuncu çizgi:
 ### 13.1 Veri yapısı
 ```js
 animation = {
-  name: "walk", fps: 30, length: 420,          // uzunluk kare cinsinden
+  name: "walk", fps: 30, length: 40,           // uzunluk kare cinsinden
   loop: true, interpolation: "smooth",
   tracks: {
     "Head":   [ { frame: 0,  values: { "head.yaw": 0,  "head.pitch": 0 } },
@@ -561,13 +561,13 @@ Bu script uygulamanın **dışında**, bir kez çalıştırılır (`node tools/m
 
 - **Gerçek modeli kullanır:** OBJ'yi ve rig'i Node'da okur, uygulamanın `buildInsect`'ini çağırır. Açılar bu yüzden tam bu karıncaya uyar.
 - **IK (ters kinematik):** "Ayak şu noktada olsun; bacağın 4 açısı (swing, lift, kaval bend, ayak bend) ne olmalı?" sorusunu çözer. Yöntem sürüklemedekine benzer (sönümlü en küçük kareler, 3 boyutta), artı açıları dinlenme pozuna yakın tutan küçük bir çekim.
-- **Walk (yürüme, 14 sn, döngülü):**
+- **Walk (yürüme, 40 kare ≈ 1,3 sn, döngülü, yerinde):**
   - *Tripod yürüyüşü:* üç bacak (sol ön, sağ orta, sol arka) birlikte adım atarken diğer üçü yerde durur; sonra yer değiştirirler. Gerçek karıncalar böyle yürür.
-  - Gövde bir yol izler: 6 birim ileri → yerinde 180° dönüş → geri → tekrar dönüş. Başladığı yerde bitirdiği için döngü kesintisiz.
-  - Yerdeki ayak dünyada **sabit** tutulur (kaymaz); havadaki ayak bir yay çizerek bir sonraki basma noktasına gider.
-  - Her 3 karede bir key; anten ve karında hafif salınım.
+  - Gövde **yerinde** kalır (koşu bandı gibi): yerdeki ayak zeminde düz bir çizgide geriye kayar, havadaki ayak bir yay çizerek öne gelir. Gövde her adımda hafifçe yükselip yana yatar.
+  - Her track'te sadece **5 karede bir key** var (döngü başına 8 key); aradaki kareleri Catmull-Rom interpolasyonu dolduruyor. Timeline'da keyframe'ler tek tek görünür.
+  - Anten ve karında hafif salınım.
 - **Looking around (etrafa bakınma, 6 sn):** Kafa sola, aşağı (koklar gibi, çeneler açılır), sağa ve yukarı bakar; antenler sürekli kıpırdar; gövde hafifçe bakış yönüne eğilirken 6 ayak da yerinde kalır (IK).
-- Script en kötü ayak kaymasını yazdırır: orta ve arka bacaklarda 0, ön bacaklarda en fazla 0,14 birim (karınca ~6 birim uzun).
+- Script en kötü ayak sapmasını yazdırır; walk için bunu key'lerde değil, **interpolasyonla oynatılmış** karelerde ölçer: en fazla ~0,04 birim (karınca ~6 birim uzun).
 
 ---
 
@@ -676,7 +676,7 @@ C: Döngülü animasyonda her track periyodik; son key'den sonra ilk key'e doğr
 C: JSON olarak: isim, fps, uzunluk, loop, interpolasyon ve her track'in keyframe'leri. Yüklerken dosyayı doğruluyoruz: bilinmeyen alanlar atılıyor, değerler sınırlara kırpılıyor.
 
 **S: Hazır animasyonları nasıl hazırladınız?**
-C: Bir Node scriptiyle. Gerçek modeli yükleyip IK ile ayakları yerde tutacak bacak açılarını hesapladı ve sonucu sıradan keyframe dosyası olarak kaydetti. Walk tripod yürüyüşü; looking around kafa ve anten hareketi.
+C: Bir Node scriptiyle. Gerçek modeli yükleyip IK ile ayakları yerde tutacak bacak açılarını hesapladı ve sonucu sıradan keyframe dosyası olarak kaydetti. Walk yerinde, döngülü bir tripod yürüyüşü: her bacak track'inde döngü başına 8 key var, aradaki kareleri Catmull-Rom dolduruyor. Looking around kafa ve anten hareketi.
 
 **S: Slider'lar ve fare nasıl senkron kalıyor?**
 C: Bütün açılar tek bir `pose` nesnesinde. Slider, fare ve animasyon hepsi buna yazıyor; slider'lar her karede `pose`'u okuyup kendini güncelliyor.
@@ -698,7 +698,7 @@ C: Her pikselde en yakın yüzeyi tutuyor; öndeki parça arkadakini örtüyor v
 - **Oynatırken poz verilemez:** Animasyon her karede `pose`'a yazdığı için slider veya fare değişiklikleri üzerine yazılır. Önce Pause'a bas.
 - **Track'i olmayan parçalar serbest:** Örneğin Walk'ta Head track'i yok; kafayı oynatabilirsin, animasyon ona dokunmaz.
 - **Çerçeve diğer parçaların üstünden görünür**, zeminin altından görünmez (bilinçli tercih: seçili parça her zaman belli olsun).
-- **Walk'ta ön ayaklar** çok az kayar (en fazla ~0,14 birim, karınca ~6 birim); orta ve arka bacaklar tam sabit.
+- **Walk'ta ayaklar** key'ler arasında hedeften en fazla ~0,04 birim sapar (karınca ~6 birim); bu, seyrek key + interpolasyonun bedeli.
 - **Işık yönü sabit** (`state.light`); arayüzden değiştirilmiyor.
 
 ---
